@@ -6,3 +6,5 @@ RUN pip install --no-cache-dir -r requirments.txt
 COPY . .
 
 CMD ["python3"]
+
+Hello World
