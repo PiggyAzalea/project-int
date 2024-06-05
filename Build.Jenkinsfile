@@ -12,7 +12,7 @@ pipeline {
                  [usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]
               ) {
                     sh '''
-                        cd JenkinsProject
+                        cd JenkinsProject\project-int
                         docker login  -u $DOCKER_USERNAME -p $DOCKER_PASS
                         docker build -t $IMG_NAME
                         docker tag $IMG_NAME exaclly/$IMG_NAME
