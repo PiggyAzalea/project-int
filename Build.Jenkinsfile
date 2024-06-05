@@ -1,28 +1,23 @@
 pipeline {
     agent any
 
+    environment {
+        IMG_NAME = "JenkinsProject:${BUILD_NUMBER}"
+    }
+
     stages {
-        stage('Checkout SCM') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Debug Workspace') {
-            steps {
-                sh 'ls -l'
-                sh 'ls -l JenkinsProject'
-            }
-        }
-
         stage('Build docker image') {
             steps {
-                withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'USERPASS')]) {
-                    script {
-                        dir('JenkinsProject/project-int') {
-                            sh 'docker build -t my-image .'
-                        }
-                    }
+                withCredentials(
+                 [usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]
+              ) {
+                    sh '''
+                        cd JenkinsProject\project-int\Build.Jenkinsfile
+                        docker login  -u $DOCKER_USERNAME -p $DOCKER_PASS
+                        docker build -t $IMG_NAME
+                        docker tag $IMG_NAME exaclly/$IMG_NAME
+                        docker push exaclly/$IMG_NAME
+                    '''
                 }
             }
         }
