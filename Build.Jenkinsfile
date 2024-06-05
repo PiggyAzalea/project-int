@@ -1,15 +1,24 @@
 pipeline {
     agent any
+
+    environment {
+        IMG_NAME = project-int:${BUILD_NUMBER}
+    }
+
     stages {
         stage('Build docker image') {
             steps {
+                withCredentials(
+                 [usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERPASS', passwordVariable: 'USERPASS')]
+              ) {
                     sh '''
                         cd project-int
-
-                        docker build -t project-int:${BUILD_NUMBER} .
-                        docker push exaclly/project-int:${BUILD_NUMBER}
+                        docker login  -u $DOCKER_USERNAME -p $DOCKER_PASS
+                        docker build -t $IMG_NAME
+                        docker tag $IMG_NAME exaclly/$IMG_NAME
+                        docker push exaclly/$IMG_NAME
                     '''
-
+                }
             }
         }
     }
