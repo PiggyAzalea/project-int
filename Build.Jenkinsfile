@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMG_NAME = project-int:${BUILD_NUMBER}
+        IMG_NAME = "project-int:${BUILD_NUMBER}"
     }
 
     stages {
