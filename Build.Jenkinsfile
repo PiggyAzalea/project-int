@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMG_NAME = "project-int:${BUILD_NUMBER}"
+        IMG_NAME = "Build.Jenkinsfile:${BUILD_NUMBER}"
     }
 
     stages {
@@ -12,7 +12,7 @@ pipeline {
                  [usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]
               ) {
                     sh '''
-                        cd Build.Jenkinsfile
+
                         docker login  -u $DOCKER_USERNAME -p $DOCKER_PASS
                         docker build -t $IMG_NAME
                         docker tag $IMG_NAME exaclly/$IMG_NAME
