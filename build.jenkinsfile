@@ -29,7 +29,11 @@ pipeline {
                 }
             }
         }
-
+        stage('Prune Docker Data') {
+            steps {
+                sh 'docker system prune -a --volumes -f'
+            }
+        }
         stage('Deploy Containers') {
             steps {
                 script {
