@@ -62,4 +62,4 @@ pipeline {
     }
 }
 
-echo "hello"
+echo "hello2"
