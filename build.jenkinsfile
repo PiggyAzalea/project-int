@@ -7,6 +7,12 @@ pipeline {
     }
 
     stages {
+        stage('Prune Docker Data') {
+                steps {
+                    sh 'docker system prune -a --volumes -f'
+                }
+            }
+
         stage('Build Docker Images') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
@@ -29,11 +35,7 @@ pipeline {
                 }
             }
         }
-        stage('Prune Docker Data') {
-            steps {
-                sh 'docker system prune -a --volumes -f'
-            }
-        }
+
         stage('Deploy Containers') {
             steps {
                 script {
