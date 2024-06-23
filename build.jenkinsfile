@@ -45,7 +45,7 @@ pipeline {
                       nginx:
                         image: exaclly/$NGINX_IMG_NAME
                         ports:
-                          - "80:80"
+                          - "81:80"
                     """
                     writeFile file: 'docker-compose.yaml', text: dockerComposeContent
                     sh 'docker-compose down'
