@@ -17,15 +17,16 @@ pipeline {
                         docker push exaclly/$IMG_NAME
                     '''
                 }
-            stage('Test') {
-                steps {
-                    echo "Testing.."
-                    sh '''
-                    python3 app.py
-                    python3 app.py --name=Brad
-                    '''
-                }
             }
+        }
+
+        stage('Test') {
+            steps {
+                echo "Testing.."
+                sh '''
+                python3 app.py
+                python3 app.py --name=Brad
+                '''
             }
         }
     }
