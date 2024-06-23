@@ -17,7 +17,7 @@ COPY . .
 # ENV VARIABLE_NAME=value
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 5000
 
 # Start the app
 CMD ["python", "app.py"]
