@@ -21,4 +21,4 @@ pipeline {
     }
 }
 
-echo "new pip version"
+echo "mypduf update"
