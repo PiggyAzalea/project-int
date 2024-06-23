@@ -1,0 +1,8 @@
+# Use the official Nginx image as the base image
+FROM nginx:alpine
+
+# Copy the static website files to the Nginx HTML directory
+COPY ./static /usr/share/nginx/html
+
+# Expose the default Nginx port
+EXPOSE 80
