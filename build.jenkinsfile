@@ -10,7 +10,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     sh '''
-                        pip install -r requirements.txt
                         echo $USERPASS | docker login -u $USERNAME --password-stdin
                         docker build -t $IMG_NAME .
                         docker tag $IMG_NAME exaclly/$IMG_NAME
