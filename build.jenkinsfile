@@ -4,7 +4,6 @@ pipeline {
     environment {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
-        DOCKER_REPO = "exaclly"
     }
 
     stages {
@@ -12,22 +11,20 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
-                        // Login to Docker Hub
-                        sh 'echo $USERPASS | docker login -u $USERNAME --password-stdin'
-
                         // Build and push Python app image
-                        sh """
+                        sh '''
+                            echo $USERPASS | docker login -u $USERNAME --password-stdin
                             docker build -t $PYTHON_IMG_NAME -f Dockerfile.python .
-                            docker tag $PYTHON_IMG_NAME $DOCKER_REPO/$PYTHON_IMG_NAME
-                            docker push $DOCKER_REPO/$PYTHON_IMG_NAME
-                        """
-
+                            docker tag $PYTHON_IMG_NAME exaclly/$PYTHON_IMG_NAME
+                            docker push exaclly/$PYTHON_IMG_NAME
+                        '''
                         // Build and push Nginx image
-                        sh """
+                        sh '''
+                            echo $USERPASS | docker login -u $USERNAME --password-stdin
                             docker build -t $NGINX_IMG_NAME -f Dockerfile.nginx .
-                            docker tag $NGINX_IMG_NAME $DOCKER_REPO/$NGINX_IMG_NAME
-                            docker push $DOCKER_REPO/$NGINX_IMG_NAME
-                        """
+                            docker tag $NGINX_IMG_NAME exaclly/$NGINX_IMG_NAME
+                            docker push exaclly/$NGINX_IMG_NAME
+                        '''
                     }
                 }
             }
@@ -41,22 +38,18 @@ pipeline {
 
                     services:
                       python_app:
-                        image: ${DOCKER_REPO}/$PYTHON_IMG_NAME
+                        image: exaclly/$PYTHON_IMG_NAME
                         ports:
                           - "8000:8000"
 
                       nginx:
-                        image: ${DOCKER_REPO}/$NGINX_IMG_NAME
+                        image: exaclly/$NGINX_IMG_NAME
                         ports:
                           - "8443:80"
                     """
                     writeFile file: 'docker-compose.yaml', text: dockerComposeContent
-
-                    // Use sudo -S to read password from standard input
-                    withCredentials([usernamePassword(credentialsId: 'sudo', usernameVariable: 'SUDO_USER', passwordVariable: 'SUDO_PASS')]) {
-                        sh 'echo $SUDO_PASS | sudo -S docker-compose down'
-                        sh 'echo $SUDO_PASS | sudo -S docker-compose up -d'
-                    }
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d'
                 }
             }
         }
@@ -68,3 +61,5 @@ pipeline {
         }
     }
 }
+
+echo "helle22o"
