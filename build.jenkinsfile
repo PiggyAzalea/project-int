@@ -47,7 +47,7 @@ pipeline {
                         ports:
                           - "80:80"
                     """
-                    writeFile file: 'docker-compose.yml', text: dockerComposeContent
+                    writeFile file: 'docker-compose.yaml', text: dockerComposeContent
                     sh 'docker-compose down'
                     sh 'docker-compose up -d'
                 }
