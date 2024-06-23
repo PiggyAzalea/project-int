@@ -48,8 +48,8 @@ pipeline {
                           - "8443:80"
                     """
                     writeFile file: 'docker-compose.yaml', text: dockerComposeContent
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    sh 'sudo docker-compose down'
+                    sh 'sudo docker-compose up -d'
                 }
             }
         }
