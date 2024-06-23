@@ -20,3 +20,5 @@ pipeline {
         }
     }
 }
+
+echo "new pip version"
