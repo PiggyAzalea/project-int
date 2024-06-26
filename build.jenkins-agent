@@ -6,7 +6,7 @@ pipeline {
         }
     }
     environment {
-        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
+        JENKINS_IMG_NAME = "jenkins-agent:${env.BUILD_NUMBER}"
     }
     stages {
         stage('Build app') {
@@ -14,7 +14,13 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh '''
+                            echo "Logging into Docker Hub"
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
+                            if [ $? -ne 0 ]; then
+                                echo "Docker login failed"
+                                exit 1
+                            fi
+                            echo "Docker login successful"
                             docker build -t $JENKINS_IMG_NAME -f Dockerfile.agent .
                             docker tag $JENKINS_IMG_NAME exaclly/$JENKINS_IMG_NAME
                             docker push exaclly/$JENKINS_IMG_NAME
@@ -26,14 +32,16 @@ pipeline {
     }
     post {
         always {
-            script {
-                // Clean up Docker images
-                sh '''
-
-                '''
+            node {
+                script {
+                    // Clean up Docker images
+                    sh '''
+                        echo "Cleaning up Docker images"
+                        docker rmi $JENKINS_IMG_NAME || echo "Image $JENKINS_IMG_NAME not found"
+                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME not found"
+                    '''
+                }
             }
         }
     }
 }
-
-echo "ben"
