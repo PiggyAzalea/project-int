@@ -6,13 +6,13 @@ pipeline {
         }
     }
     environment {
-        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
+        JENKINS_IMG_NAME = ""
     }
     stages {
         stage('Prepare') {
             steps {
                 script {
-                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:latest${BUILD_NUMBER}"
+                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:${env.BUILD_NUMBER}"
                 }
             }
         }
