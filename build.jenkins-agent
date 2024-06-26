@@ -23,6 +23,7 @@ pipeline {
                         sh '''
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
                             docker build -t $JENKINS_IMG_NAME -f Dockerfile.agent .
+                            docker push $JENKINS_IMG_NAME
                             docker tag $JENKINS_IMG_NAME exaclly/$JENKINS_IMG_NAME
                             docker push exaclly/$JENKINS_IMG_NAME
                         '''
