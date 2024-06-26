@@ -9,13 +9,6 @@ pipeline {
         JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
     }
     stages {
-        stage('Prepare') {
-            steps {
-                script {
-                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:latest${BUILD_NUMBER}"
-                }
-            }
-        }
         stage('Build app') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
