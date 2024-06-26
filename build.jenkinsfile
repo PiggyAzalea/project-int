@@ -25,8 +25,8 @@ pipeline {
                             sh 'echo $USERPASS | docker login -u $USERNAME --password-stdin'
 
                             // Build and push Jenkins agent image
-                            docker.build('exaclly/jenkins-agent')
-                            docker.image('exaclly/jenkins-agent').push()
+                            docker.build('exaclly/jenkins-agent:latest')
+                            docker.image('exaclly/jenkins-agent:latest').push()
                         }
                     }
                 }
