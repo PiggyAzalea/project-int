@@ -1,5 +1,5 @@
 pipeline {
-    agent
+    agent any
 
     environment {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
