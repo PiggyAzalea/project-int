@@ -6,13 +6,13 @@ pipeline {
         }
     }
     environment {
-        JENKINS_IMG_NAME = ""
+        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
     }
     stages {
         stage('Prepare') {
             steps {
                 script {
-                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:latest${env.BUILD_NUMBER}"
+                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:latest${BUILD_NUMBER}"
                 }
             }
         }
@@ -22,7 +22,7 @@ pipeline {
                     script {
                         sh '''
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
-                            docker build -t $JENKINS_IMG_NAME Dockerfile.agent .
+                            docker build -t $JENKINS_IMG_NAME -f Dockerfile.agent .
                             docker push $JENKINS_IMG_NAME
                         '''
                     }
