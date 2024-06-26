@@ -29,7 +29,7 @@ pipeline {
             script {
                 // Clean up Docker images
                 sh '''
-                    docker rmi $JENKINS_IMG_NAME || true
+
                 '''
             }
         }
