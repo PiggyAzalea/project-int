@@ -12,7 +12,7 @@ pipeline {
         stage('Prepare') {
             steps {
                 script {
-                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:${env.BUILD_NUMBER}"
+                    JENKINS_IMG_NAME = "exaclly/jenkins-agent-${env.BUILD_NUMBER}"
                 }
             }
         }
