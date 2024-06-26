@@ -2,40 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = 'docker.io/exaclly'
-        DOCKER_CREDENTIALS_ID = 'dockerhub'  // Add the ID of your Docker Hub credentials
-        IMAGE_NAME = 'jenkins-project'
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
     }
 
     stages {
-        stage('Build Jenkins Agent Docker Image') {
-            agent {
-                docker {
-                    image 'exaclly/jenkins-agent:latest'
-                    args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
-                    script {
-                        docker.withRegistry('https://registry.hub.docker.com', DOCKER_CREDENTIALS_ID) {
-                            // Login to Docker Hub
-                            sh 'echo $USERPASS | docker login -u $USERNAME --password-stdin'
-
-                            // Build and push Jenkins agent image
-                            docker.build('exaclly/jenkins-agent:latest')
-                            docker.image('exaclly/jenkins-agent:latest').push()
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build Docker Images') {
             steps {
-                withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         // Build and push Python app image
                         sh '''
@@ -87,5 +61,3 @@ pipeline {
         }
     }
 }
-
-echo "hello"
