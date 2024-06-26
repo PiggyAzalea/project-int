@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'exaclly/jenkins-agent:latest'
+            image 'exaclly/jenkins-agent:custom'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -12,7 +12,7 @@ pipeline {
         stage('Prepare') {
             steps {
                 script {
-                    JENKINS_IMG_NAME = "jenkins-agent:${env.BUILD_NUMBER}"
+                    JENKINS_IMG_NAME = "exaclly/jenkins-agent:${env.BUILD_NUMBER}"
                 }
             }
         }
@@ -23,8 +23,7 @@ pipeline {
                         sh '''
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
                             docker build -t $JENKINS_IMG_NAME -f Dockerfile.agent .
-                            docker tag $JENKINS_IMG_NAME exaclly/$JENKINS_IMG_NAME
-                            docker push exaclly/$JENKINS_IMG_NAME
+                            docker push $JENKINS_IMG_NAME
                         '''
                     }
                 }
@@ -37,7 +36,6 @@ pipeline {
                 // Clean up Docker images
                 sh '''
                     docker rmi $JENKINS_IMG_NAME || true
-                    docker rmi exaclly/$JENKINS_IMG_NAME || true
                 '''
             }
         }
