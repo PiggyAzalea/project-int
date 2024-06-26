@@ -4,14 +4,11 @@ pipeline {
             image 'exaclly/jenkins-agent:latest'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
-    }
 
     environment {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'docker.io/exaclly'
-        DOCKER_CREDENTIALS_ID = 'dockerhub'
-        IMAGE_NAME = 'jenkins_agent'
+
     }
 
     stages {
@@ -69,5 +66,3 @@ pipeline {
         }
     }
 }
-
-echo "Hello2"
