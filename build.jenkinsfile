@@ -61,5 +61,3 @@ pipeline {
         }
     }
 }
-
-echo "helle22o"
