@@ -8,6 +8,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install the dependencies
+RUN pip install --upgrade pip
+RUN pip install jupyter_client
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy over the rest of the app code
