@@ -34,14 +34,3 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            //script {
-                //cleanWs()
-            }
-        }
-    }
-}
-
-echo "hello"
