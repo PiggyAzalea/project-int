@@ -5,22 +5,19 @@ pipeline {
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
+
     environment {
-        JENKINS_IMG_NAME = "exaclly/jenkins-agent:${env.BUILD_NUMBER}"
+        JENKINS_IMG_NAME = "jenkins-agent:latest"
     }
+
     stages {
-        stage('Build app') {
+        stage('Build Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
+                        // Build and push Jenkins agent image
                         sh '''
-                            echo "Logging into Docker Hub"
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
-                            if [ $? -ne 0 ]; then
-                                echo "Docker login failed"
-                                exit 1
-                            fi
-                            echo "Docker login successful"
                             docker build -t $JENKINS_IMG_NAME -f Dockerfile.agent .
                             docker tag $JENKINS_IMG_NAME exaclly/$JENKINS_IMG_NAME
                             docker push exaclly/$JENKINS_IMG_NAME
@@ -30,19 +27,10 @@ pipeline {
             }
         }
     }
+
     post {
         always {
-            script {
-                echo "Cleaning up Docker images"
-                try {
-                    sh '''
-                        docker rmi $JENKINS_IMG_NAME || echo "Image $JENKINS_IMG_NAME not found"
-                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME not found"
-                    '''
-                } catch (Exception e) {
-                    echo "Cleanup failed: ${e.getMessage()}"
-                }
-            }
+            cleanWs()
         }
     }
 }
