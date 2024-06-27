@@ -30,7 +30,18 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            script {
+                // Ensure cleanup steps run in the correct node context
+                node {
+                    // Clean up Docker images
+                    sh '''
+                        echo "Cleaning up Docker images"
+                        docker rmi $JENKINS_IMG_NAME || echo "Image $JENKINS_IMG_NAME not found"
+                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME not found"
+                    '''
+                }
+                cleanWs()
+            }
         }
     }
 }
