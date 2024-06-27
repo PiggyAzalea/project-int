@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        JENKINS_IMG_NAME = "jenkins-agent:latest"
+        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
     }
 
     stages {
