@@ -11,13 +11,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Checkout the repository containing Dockerfile.agent
-                git url: 'https://github.com/PiggyAzalea/project-int.git', credentialsId: 'your-git-credentials-id'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
