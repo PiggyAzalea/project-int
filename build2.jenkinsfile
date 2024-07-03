@@ -1,19 +1,25 @@
 pipeline {
     agent {
         docker {
-            image 'exaclly/jenkins-agent'
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+            image 'exaclly/jenkins-agent' // Using the specified Docker image
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // Running as root and mounting Docker socket
         }
     }
 
     environment {
-        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
+        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}" // Defining the Docker image name
+    }
+
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '30')) // Discard old builds after 30 days
+        disableConcurrentBuilds() // Prevent concurrent builds
+        timestamps() // Add timestamps to the console output
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout scm // Checking out the source code
             }
         }
 
@@ -36,7 +42,14 @@ pipeline {
     post {
         always {
             script {
+                // Clean the workspace
                 cleanWs()
+
+                // Remove the built Docker image from the disk
+                sh '''
+                    docker rmi $JENKINS_IMG_NAME || true
+                    docker rmi exaclly/$JENKINS_IMG_NAME || true
+                '''
             }
         }
     }
