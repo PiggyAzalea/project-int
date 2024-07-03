@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: Dockerfile.nginx
     ports:
-      - "81:80"
+      - "8444:80"
     volumes:
       - ./static:/usr/share/nginx/html
 
