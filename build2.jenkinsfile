@@ -6,6 +6,12 @@ pipeline {
         }
     }
 
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '30'))
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
     environment {
         JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
     }
@@ -36,7 +42,14 @@ pipeline {
     post {
         always {
             script {
+                // Clean up workspace
                 cleanWs()
+
+                // Remove Docker images
+                sh '''
+                    docker rmi $JENKINS_IMG_NAME
+                    docker rmi exaclly/$JENKINS_IMG_NAME
+                '''
             }
         }
     }
