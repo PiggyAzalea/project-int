@@ -47,7 +47,7 @@ pipeline {
 
         stage('Snyk Scan Python Image') {
             steps {
-                script {
+                withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
                     sh '''
                         snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
                     '''
@@ -57,7 +57,7 @@ pipeline {
 
         stage('Snyk Scan Nginx Image') {
             steps {
-                script {
+                withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
                     sh '''
                         snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
                     '''
