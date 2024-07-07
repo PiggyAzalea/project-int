@@ -39,10 +39,11 @@ pipeline {
                         def ignoreVulns = ignoreFile.split('\n')
 
                         ignoreVulns.each { vulnId ->
-                            sh '''
-                                export SNYK_TOKEN=$SNYK_TOKEN
-                                snyk ignore --id=${vulnId.trim()}
-                            '''
+                            withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                                sh '''
+                                    snyk ignore --id=${vulnId.trim()}
+                                '''
+                            }
                         }
                     }
                 }
@@ -52,10 +53,11 @@ pipeline {
         stage('Snyk Scan Python Image') {
             steps {
                 withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-                    sh '''
-                        export SNYK_TOKEN=$SNYK_TOKEN
-                        snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
-                    '''
+                    withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                        sh '''
+                            snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
+                        '''
+                    }
                 }
             }
         }
@@ -63,10 +65,11 @@ pipeline {
         stage('Snyk Scan Nginx Image') {
             steps {
                 withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-                    sh '''
-                        export SNYK_TOKEN=$SNYK_TOKEN
-                        snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
-                    '''
+                    withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                        sh '''
+                            snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
+                        '''
+                    }
                 }
             }
         }
