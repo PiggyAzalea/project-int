@@ -1,0 +1,13 @@
+pipeline {
+    agent any
+    environment {
+        SNYK_TOKEN = credentials('40b837a0-4a8e-44c0-8824-a345f99eb028')
+    }
+    stages {
+        stage('Snyk Scan') {
+            steps {
+                sh 'snyk container test my-image:latest --file=Dockerfile'
+            }
+        }
+    }
+}
