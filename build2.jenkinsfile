@@ -42,9 +42,6 @@ pipeline {
     post {
         always {
             script {
-                // Enable diagnostic mode
-                sh 'java -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS=true'
-
                 // Clean up workspace with error handling
                 try {
                     cleanWs()
