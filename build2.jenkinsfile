@@ -46,8 +46,10 @@ pipeline {
                 cleanWs()
 
                 // Remove the built Docker images from the disk
-                sh "docker rmi $JENKINS_IMG_NAME || true"
-                sh "docker rmi exaclly/$JENKINS_IMG_NAME || true"
+                sh '''
+                    docker rmi $JENKINS_IMG_NAME || echo "Image $JENKINS_IMG_NAME already removed or not found."
+                    docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
+                '''
             }
         }
     }
