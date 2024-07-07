@@ -42,13 +42,24 @@ pipeline {
     post {
         always {
             script {
+                // Log the start of the cleanup process
+                echo 'Starting cleanup process...'
+
                 // Clean the workspace
                 cleanWs()
 
                 // Remove the built Docker images from the disk
-                sh '''
-                    docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
-                '''
+                try {
+                    sh '''
+                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
+                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
+                    '''
+                } catch (Exception e) {
+                    echo "Error during Docker image removal: ${e.getMessage()}"
+                }
+
+                // Log the end of the cleanup process
+                echo 'Cleanup process completed.'
             }
         }
     }
