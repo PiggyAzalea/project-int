@@ -39,7 +39,10 @@ pipeline {
                         def ignoreVulns = ignoreFile.split('\n')
 
                         ignoreVulns.each { vulnId ->
-                            sh "export SNYK_TOKEN=${env.SNYK_TOKEN} && snyk ignore --id=${vulnId.trim()}"
+                            sh '''
+                                export SNYK_TOKEN=${SNYK_TOKEN}
+                                snyk ignore --id=${vulnId.trim()}
+                            '''
                         }
                     }
                 }
