@@ -4,6 +4,7 @@ pipeline {
     environment {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
+        SNYK_TOKEN = credentials('SNYK_TOKEN') // Assuming 'SNYK_TOKEN' is the ID of your Snyk API token in Jenkins credentials
     }
 
     stages {
@@ -26,6 +27,26 @@ pipeline {
                             docker push exaclly/$NGINX_IMG_NAME
                         '''
                     }
+                }
+            }
+        }
+
+        stage('Snyk Scan Python Image') {
+            steps {
+                script {
+                    sh '''
+                        snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
+                    '''
+                }
+            }
+        }
+
+        stage('Snyk Scan Nginx Image') {
+            steps {
+                script {
+                    sh '''
+                        snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
+                    '''
                 }
             }
         }
