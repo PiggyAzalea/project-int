@@ -45,9 +45,6 @@ pipeline {
                 // Log the start of the cleanup process
                 echo 'Starting cleanup process...'
 
-                // Clean the workspace
-                cleanWs()
-
                 // Remove the built Docker images from the disk
                 try {
                     sh '''
@@ -57,6 +54,10 @@ pipeline {
                 } catch (Exception e) {
                     echo "Error during Docker image removal: ${e.getMessage()}"
                 }
+
+                // Clean the workspace
+                cleanWs()
+
 
                 // Log the end of the cleanup process
                 echo 'Cleanup process completed.'
