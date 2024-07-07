@@ -4,7 +4,6 @@ pipeline {
     environment {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
-        SNYK_TOKEN = credentials('SNYK_TOKEN') // Assuming 'SNYK_TOKEN' is the ID of your Snyk API token in Jenkins credentials
     }
 
     stages {
@@ -33,7 +32,7 @@ pipeline {
 
         stage('Ignore Vulnerabilities') {
             steps {
-                withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                     script {
                         // Read the snyk-ignore.txt file and ignore listed vulnerabilities
                         def ignoreFile = readFile('snyk-ignore.txt')
@@ -49,7 +48,7 @@ pipeline {
 
         stage('Snyk Scan Python Image') {
             steps {
-                withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                     sh '''
                         snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
                     '''
@@ -59,7 +58,7 @@ pipeline {
 
         stage('Snyk Scan Nginx Image') {
             steps {
-                withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                     sh '''
                         snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
                     '''
