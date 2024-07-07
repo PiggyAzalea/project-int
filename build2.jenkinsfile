@@ -42,13 +42,16 @@ pipeline {
     post {
         always {
             script {
+                // Enable diagnostic mode
+                sh 'java -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS=true'
+
                 // Clean up workspace
                 cleanWs()
 
-                // Remove Docker images
+                // Remove Docker images with diagnostics
                 sh '''
-                    docker rmi $JENKINS_IMG_NAME
-                    docker rmi exaclly/$JENKINS_IMG_NAME
+                    docker rmi $JENKINS_IMG_NAME || echo "Failed to remove image: $JENKINS_IMG_NAME"
+                    docker rmi exaclly/$JENKINS_IMG_NAME || echo "Failed to remove image: exaclly/$JENKINS_IMG_NAME"
                 '''
             }
         }
