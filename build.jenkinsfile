@@ -40,7 +40,7 @@ pipeline {
 
                         ignoreVulns.each { vulnId ->
                             sh '''
-                                export SNYK_TOKEN=${SNYK_TOKEN}
+                                export SNYK_TOKEN=$SNYK_TOKEN
                                 snyk ignore --id=${vulnId.trim()}
                             '''
                         }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                     sh '''
-                        export SNYK_TOKEN=${SNYK_TOKEN}
+                        export SNYK_TOKEN=$SNYK_TOKEN
                         snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
                     '''
                 }
@@ -64,7 +64,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                     sh '''
-                        export SNYK_TOKEN=${SNYK_TOKEN}
+                        export SNYK_TOKEN=$SNYK_TOKEN
                         snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
                     '''
                 }
