@@ -33,13 +33,15 @@ pipeline {
 
         stage('Ignore Vulnerabilities') {
             steps {
-                script {
-                    // Read the snyk-ignore.txt file and ignore listed vulnerabilities
-                    def ignoreFile = readFile('snyk-ignore.txt')
-                    def ignoreVulns = ignoreFile.split('\n')
+                withEnv(["SNYK_TOKEN=${env.SNYK_TOKEN}"]) {
+                    script {
+                        // Read the snyk-ignore.txt file and ignore listed vulnerabilities
+                        def ignoreFile = readFile('snyk-ignore.txt')
+                        def ignoreVulns = ignoreFile.split('\n')
 
-                    ignoreVulns.each { vulnId ->
-                        sh "snyk ignore --id=${vulnId.trim()}"
+                        ignoreVulns.each { vulnId ->
+                            sh "snyk ignore --id=${vulnId.trim()}"
+                        }
                     }
                 }
             }
