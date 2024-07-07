@@ -42,25 +42,12 @@ pipeline {
     post {
         always {
             script {
-                // Clean up workspace with error handling
-                try {
-                    cleanWs()
-                } catch (Exception e) {
-                    echo "Workspace cleanup failed: ${e}"
-                }
+                // Clean the workspace
+                cleanWs()
 
-                // Remove Docker images with error handling and logging
-                try {
-                    sh 'docker rmi $JENKINS_IMG_NAME'
-                } catch (Exception e) {
-                    echo "Failed to remove image: $JENKINS_IMG_NAME, error: ${e}"
-                }
-
-                try {
-                    sh 'docker rmi exaclly/$JENKINS_IMG_NAME'
-                } catch (Exception e) {
-                    echo "Failed to remove image: exaclly/$JENKINS_IMG_NAME, error: ${e}"
-                }
+                // Remove the built Docker images from the disk
+                sh "docker rmi $JENKINS_IMG_NAME || true"
+                sh "docker rmi exaclly/$JENKINS_IMG_NAME || true"
             }
         }
     }
