@@ -31,6 +31,22 @@ pipeline {
             }
         }
 
+        stage('Unittest') {
+            steps {
+                script {
+                    // Install Python requirements
+                    sh 'pip3 install -r requirements.txt'
+                    // Run unit tests
+                    sh 'python3 -m pytest --junitxml results.xml tests/*.py'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'results.xml'
+                }
+            }
+        }
+
         stage('Snyk Scan Python Image') {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
@@ -83,37 +99,36 @@ pipeline {
     }
 
     post {
-    always {
-        script {
-            // Log the start of the cleanup process
-            echo 'Starting cleanup process...'
+        always {
+            script {
+                // Log the start of the cleanup process
+                echo 'Starting cleanup process...'
 
-            // Remove the built Docker images from the disk
-            try {
-                sh '''
-                    echo "Removing Docker image: exaclly/$PYTHON_IMG_NAME"
-                    docker rmi exaclly/$PYTHON_IMG_NAME || echo "Image exaclly/$PYTHON_IMG_NAME already removed or not found."
-                '''
-            } catch (Exception e) {
-                echo "Error during Docker image removal: ${e.getMessage()}"
+                // Remove the built Docker images from the disk
+                try {
+                    sh '''
+                        echo "Removing Docker image: exaclly/$PYTHON_IMG_NAME"
+                        docker rmi exaclly/$PYTHON_IMG_NAME || echo "Image exaclly/$PYTHON_IMG_NAME already removed or not found."
+                    '''
+                } catch (Exception e) {
+                    echo "Error during Docker image removal: ${e.getMessage()}"
+                }
+
+                try {
+                    sh '''
+                        echo "Removing Docker image: exaclly/$NGINX_IMG_NAME"
+                        docker rmi exaclly/$NGINX_IMG_NAME || echo "Image exaclly/$NGINX_IMG_NAME already removed or not found."
+                    '''
+                } catch (Exception e) {
+                    echo "Error during Docker image removal: ${e.getMessage()}"
+                }
+
+                // Clean the workspace
+                cleanWs()
+
+                // Log the end of the cleanup process
+                echo 'Cleanup process completed.'
             }
-
-            try {
-                sh '''
-                    echo "Removing Docker image: exaclly/$NGINX_IMG_NAME"
-                    docker rmi exaclly/$NGINX_IMG_NAME || echo "Image exaclly/$NGINX_IMG_NAME already removed or not found."
-                '''
-            } catch (Exception e) {
-                echo "Error during Docker image removal: ${e.getMessage()}"
-            }
-
-            // Clean the workspace
-            cleanWs()
-
-            // Log the end of the cleanup process
-            echo 'Cleanup process completed.'
         }
     }
-}
-
 }
