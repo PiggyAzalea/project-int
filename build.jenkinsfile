@@ -83,28 +83,37 @@ pipeline {
     }
 
     post {
-        always {
-            script {
-                // Log the start of the cleanup process
-                echo 'Starting cleanup process...'
+    always {
+        script {
+            // Log the start of the cleanup process
+            echo 'Starting cleanup process...'
 
-                // Remove the built Docker images from the disk
-                try {
-                    sh '''
-                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
-                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
-                    '''
-                } catch (Exception e) {
-                    echo "Error during Docker image removal: ${e.getMessage()}"
-                }
-
-                // Clean the workspace
-                cleanWs()
-
-
-                // Log the end of the cleanup process
-                echo 'Cleanup process completed.'
+            // Remove the built Docker images from the disk
+            try {
+                sh '''
+                    echo "Removing Docker image: exaclly/$PYTHON_IMG_NAME"
+                    docker rmi exaclly/$PYTHON_IMG_NAME || echo "Image exaclly/$PYTHON_IMG_NAME already removed or not found."
+                '''
+            } catch (Exception e) {
+                echo "Error during Docker image removal: ${e.getMessage()}"
             }
+
+            try {
+                sh '''
+                    echo "Removing Docker image: exaclly/$NGINX_IMG_NAME"
+                    docker rmi exaclly/$NGINX_IMG_NAME || echo "Image exaclly/$NGINX_IMG_NAME already removed or not found."
+                '''
+            } catch (Exception e) {
+                echo "Error during Docker image removal: ${e.getMessage()}"
+            }
+
+            // Clean the workspace
+            cleanWs()
+
+            // Log the end of the cleanup process
+            echo 'Cleanup process completed.'
         }
     }
+}
+
 }
