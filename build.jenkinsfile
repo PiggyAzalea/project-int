@@ -31,33 +31,14 @@ pipeline {
             }
         }
 
-        stage('Ignore Vulnerabilities') {
-            steps {
-                withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    script {
-                        // Read the snyk-ignore.txt file and ignore listed vulnerabilities
-                        def ignoreFile = readFile('snyk-ignore.txt')
-                        def ignoreVulns = ignoreFile.split('\n')
-
-                        ignoreVulns.each { vulnId ->
-                            withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
-                                sh """
-                                    snyk ignore --id=${vulnId.trim()}
-                                """
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Snyk Scan Python Image') {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
-                        sh """
+                        sh '''
+                            snyk auth $SNYK_TOKEN
                             snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python --policy-path=.snyk
-                        """
+                        '''
                     }
                 }
             }
@@ -67,9 +48,10 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
-                        sh """
+                        sh '''
+                            snyk auth $SNYK_TOKEN
                             snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx --policy-path=.snyk
-                        """
+                        '''
                     }
                 }
             }
