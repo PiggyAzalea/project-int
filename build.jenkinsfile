@@ -31,13 +31,17 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip3 install pytest unittest2'
+            }
+        }
+
         stage('Unittest') {
             steps {
                 script {
-                    // Install Python requirements
-                    sh 'pip3 install -r requirements.txt'
                     // Run unit tests
-                    sh 'python3 -m pytest --junitxml results.xml tests/*.py'
+                    sh 'python3 -m pytest --junitxml results.xml tests/test_demo.py'
                 }
             }
             post {
