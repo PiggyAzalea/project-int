@@ -4,7 +4,7 @@ pipeline {
     environment {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
-        SNYK_TOKEN = credentials('snyk-token')
+        SNYK_TOKEN = credentials('snyk-token') // Ensure you have a Jenkins credential with ID 'snyk-token'
     }
 
     stages {
@@ -40,10 +40,11 @@ pipeline {
                         def ignoreVulns = ignoreFile.split('\n')
 
                         ignoreVulns.each { vulnId ->
-                            sh """
-                                export SNYK_TOKEN=${SNYK_TOKEN}
-                                snyk ignore --id=${vulnId.trim()}
-                            """
+                            withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
+                                sh """
+                                    snyk ignore --id=${vulnId.trim()}
+                                """
+                            }
                         }
                     }
                 }
@@ -53,10 +54,11 @@ pipeline {
         stage('Snyk Scan Python Image') {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    sh """
-                        export SNYK_TOKEN=${SNYK_TOKEN}
-                        snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python
-                    """
+                    withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
+                        sh """
+                            snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python --policy-path=.snyk
+                        """
+                    }
                 }
             }
         }
@@ -64,10 +66,11 @@ pipeline {
         stage('Snyk Scan Nginx Image') {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    sh """
-                        export SNYK_TOKEN=${SNYK_TOKEN}
-                        snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx
-                    """
+                    withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
+                        sh """
+                            snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx --policy-path=.snyk
+                        """
+                    }
                 }
             }
         }

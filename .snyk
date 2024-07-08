@@ -1,0 +1,11 @@
+version: v1.25.0
+ignore:
+  SNYK-DEBIAN12-APT-1541449:
+    - "*":
+        reason: "Ignored because all existing medium vulnerabilities are allowed."
+        expires: "2024-12-31T12:00:00Z"
+  SNYK-DEBIAN12-UTILLINUX-2401083:
+    - "*":
+        reason: "Ignored because all existing medium vulnerabilities are allowed."
+        expires: "2024-12-31T12:00:00Z"
+  # Add other vulnerabilities to ignore here
