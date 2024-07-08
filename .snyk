@@ -196,3 +196,191 @@ ignore:
     - "*":
         reason: "Ignored because this vulnerability is not exploitable in our environment."
         expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-1560922:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-1561093:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-1561130:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-1561402:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-1561632:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-2440572:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5416364:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5673710:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5747599:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5749338:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5750144:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5767899:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-5773187:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-6079922:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-6084514:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-6190608:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-6190785:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-OPENLDAP-1555631:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-OPENLDAP-1555724:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-OPENLDAP-1555918:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-OPENLDAP-1555941:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-OPENLDAP-5660620:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-NGINX-1554675:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-NGINX-1555042:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-NGINX-5953391:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-NGHTTP2-6541749:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBXSLT-1551290:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBXML2-5871333:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBXML2-5947663:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBXML2-6227803:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBXML2-6839382:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBPNG16-2363910:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBHEIF-5498469:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBHEIF-6105360:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBHEIF-6105367:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBHEIF-6105368:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBHEIF-6105378:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBHEIF-6371532:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBDE265-6672145:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBDE265-7411271:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-LIBDE265-7411272:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-JBIGKIT-1549085:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-DAV1D-5518047:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-CURL-6501697:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-AOM-5878995:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-AOM-6140324:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-AOM-7197979:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-01-01T00:00:00Z"
