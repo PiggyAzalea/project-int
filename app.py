@@ -1,6 +1,7 @@
+"""Module docstring for app.py"""
+
 import os
 import mimetypes
-import subprocess
 import shutil
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
@@ -123,7 +124,7 @@ def extract_text_from_ipynb(file_path):
 def index_files(upload_folder):
     """Index files in the upload folder."""
     file_index.clear()
-    for root, dirs, files in os.walk(upload_folder):
+    for root, _, files in os.walk(upload_folder):
         for file in files:
             file_path = os.path.join(root, file)
             content = None
@@ -192,7 +193,7 @@ def get_slides_content():
 def index():
     """Render the index page."""
     categories = []
-    for root, dirs, files in os.walk(app.config['UPLOAD_FOLDER']):
+    for root, dirs, _ in os.walk(app.config['UPLOAD_FOLDER']):
         for d in dirs:
             categories.append(d)
     return render_template('index.html', categories=categories)
@@ -346,6 +347,8 @@ def run_python():
     user_input = request.json.get('input', '')
 
     try:
+        import io
+        from contextlib import redirect_stdout, redirect_stderr
         # Prepare to run the code in a subprocess with user input
         output_buffer = io.StringIO()
         error_buffer = io.StringIO()
@@ -357,7 +360,7 @@ def run_python():
 
         output = output_buffer.getvalue()
         error = error_buffer.getvalue()
-    except Exception as e:
+    except Exception as e:  # Catching too general exception Exception
         output = ''
         error = str(e)
 

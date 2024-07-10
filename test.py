@@ -1,3 +1,5 @@
+"""Unit tests for the file structure and indexing in the Flask app."""
+
 import os
 import unittest
 from app import app, index_files, file_index
