@@ -37,33 +37,35 @@ pipeline {
             }
         }
 
-        parallel {
-            stage('Static Code Linting') {
-                steps {
-                    sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
-                }
-                post {
-                    always {
-                        sh 'cat pylint.log'
-                        recordIssues(
-                            enabledForFailure: true,
-                            aggregatingResults: true,
-                            tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
-                        )
+        stage('Parallel Stages') {
+            parallel {
+                stage('Static Code Linting') {
+                    steps {
+                        sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
+                    }
+                    post {
+                        always {
+                            sh 'cat pylint.log'
+                            recordIssues(
+                                enabledForFailure: true,
+                                aggregatingResults: true,
+                                tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
+                            )
+                        }
                     }
                 }
-            }
 
-            stage('Unittest') {
-                steps {
-                    script {
-                        // Run unit tests
-                        sh 'python3 -m pytest --junitxml results.xml tests/test_demo.py'
+                stage('Unittest') {
+                    steps {
+                        script {
+                            // Run unit tests
+                            sh 'python3 -m pytest --junitxml results.xml tests/test_demo.py'
+                        }
                     }
-                }
-                post {
-                    always {
-                        junit allowEmptyResults: true, testResults: 'results.xml'
+                    post {
+                        always {
+                            junit allowEmptyResults: true, testResults: 'results.xml'
+                        }
                     }
                 }
             }
