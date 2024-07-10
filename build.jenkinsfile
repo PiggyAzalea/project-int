@@ -39,12 +39,16 @@ pipeline {
             }
             post {
                 always {
-                    sh 'cat pylint.log'
-                    recordIssues(
-                        enabledForFailure: true,
-                        aggregatingResults: true,
-                        tools: [pylint(pattern: '**/pylint.log')]
-                    )
+                    archiveArtifacts artifacts: 'pylint.log', allowEmptyArchive: true
+                    script {
+                        def pylintIssues = readFile('pylint.log').split('\n').findAll { it.trim() }
+                        if (pylintIssues.size() > 0) {
+                            currentBuild.result = 'UNSTABLE'
+                            echo "Found ${pylintIssues.size()} pylint issues."
+                        } else {
+                            echo 'No pylint issues found.'
+                        }
+                    }
                 }
             }
         }
@@ -119,19 +123,19 @@ pipeline {
                 echo 'Starting cleanup process...'
                 try {
                     sh '''
-                        echo "Removing Docker image: exaclly/$PYTHON_IMG_NAME"
-                        docker rmi exaclly/$PYTHON_IMG_NAME || echo "Image exaclly/$PYTHON_IMG_NAME already removed or not found."
+                        echo "Removing Docker image: exaclly/${PYTHON_IMG_NAME}"
+                        docker rmi exaclly/${PYTHON_IMG_NAME} || echo "Image exaclly/${PYTHON_IMG_NAME} already removed or not found."
                     '''
                 } catch (Exception e) {
-                    echo "Error during Docker image removal: ${e.getMessage()}"
+                    echo "Error during Docker image removal of ${PYTHON_IMG_NAME}: ${e}"
                 }
                 try {
                     sh '''
-                        echo "Removing Docker image: exaclly/$NGINX_IMG_NAME"
-                        docker rmi exaclly/$NGINX_IMG_NAME || echo "Image exaclly/$NGINX_IMG_NAME already removed or not found."
+                        echo "Removing Docker image: exaclly/${NGINX_IMG_NAME}"
+                        docker rmi exaclly/${NGINX_IMG_NAME} || echo "Image exaclly/${NGINX_IMG_NAME} already removed or not found."
                     '''
                 } catch (Exception e) {
-                    echo "Error during Docker image removal: ${e.getMessage()}"
+                    echo "Error during Docker image removal of ${NGINX_IMG_NAME}: ${e}"
                 }
                 cleanWs()
                 echo 'Cleanup process completed.'
