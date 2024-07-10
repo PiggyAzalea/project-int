@@ -33,38 +33,37 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install pytest unittest2 pylint'
+                sh 'pip3 install -r requirements.txt'
             }
         }
 
-        stage('Parallel Linting and Unittest') {
-            parallel {
-                stage('Static Code Linting') {
-                    steps {
-                        sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
-                    }
-                    post {
-                        always {
-                            sh 'cat pylint.log'
-                            recordIssues (
-                                enabledForFailure: true,
-                                aggregatingResults: true,
-                                tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
-                            )
-                        }
+        parallel {
+            stage('Static Code Linting') {
+                steps {
+                    sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
+                }
+                post {
+                    always {
+                        sh 'cat pylint.log'
+                        recordIssues(
+                            enabledForFailure: true,
+                            aggregatingResults: true,
+                            tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
+                        )
                     }
                 }
-                stage('Unittest') {
-                    steps {
-                        script {
-                            // Run unit tests
-                            sh 'python3 -m pytest --junitxml results.xml tests/test_demo.py'
-                        }
+            }
+
+            stage('Unittest') {
+                steps {
+                    script {
+                        // Run unit tests
+                        sh 'python3 -m pytest --junitxml results.xml tests/test_demo.py'
                     }
-                    post {
-                        always {
-                            junit allowEmptyResults: true, testResults: 'results.xml'
-                        }
+                }
+                post {
+                    always {
+                        junit allowEmptyResults: true, testResults: 'results.xml'
                     }
                 }
             }
@@ -73,12 +72,10 @@ pipeline {
         stage('Snyk Scan Python Image') {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
-                        sh '''
-                            snyk auth $SNYK_TOKEN
-                            snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python --policy-path=.snyk
-                        '''
-                    }
+                    sh '''
+                        snyk auth $SNYK_TOKEN
+                        snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python --policy-path=.snyk
+                    '''
                 }
             }
         }
@@ -86,12 +83,10 @@ pipeline {
         stage('Snyk Scan Nginx Image') {
             steps {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
-                    withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
-                        sh '''
-                            snyk auth $SNYK_TOKEN
-                            snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx --policy-path=.snyk
-                        '''
-                    }
+                    sh '''
+                        snyk auth $SNYK_TOKEN
+                        snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx --policy-path=.snyk
+                    '''
                 }
             }
         }
