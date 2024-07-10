@@ -1,12 +1,12 @@
 import os
 import mimetypes
 import subprocess
+import shutil
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
 from werkzeug.utils import secure_filename
 import mammoth
 from pptx import Presentation
 import fitz  # PyMuPDF
-import shutil
 from jinja2 import Environment, FileSystemLoader, select_autoescape, Undefined
 import nbformat
 from jupyter_client import KernelManager
@@ -16,8 +16,9 @@ app.config['UPLOAD_FOLDER'] = os.path.abspath('templates/uploads')
 app.secret_key = 'supersecretkey'
 file_index = {}
 
-#global dictionary to store variables
+# Global dictionary to store variables
 execution_environment = {}
+
 # Create a custom Jinja environment with enumerate function available
 custom_env = Environment(
     loader=FileSystemLoader('templates'),
@@ -30,10 +31,12 @@ app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', '
 
 
 def allowed_file(filename):
+    """Check if the file extension is allowed."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
 def extract_text_and_images_from_pptx(file_path, uploads_dir):
+    """Extract text and images from a PPTX file."""
     from pptx.enum.shapes import MSO_SHAPE_TYPE
 
     prs = Presentation(file_path)
@@ -65,18 +68,20 @@ def extract_text_and_images_from_pptx(file_path, uploads_dir):
 
 
 def create_directory(directory):
-    # Create the directory if it doesn't exist
+    """Create the directory if it doesn't exist."""
     if not os.path.exists(directory):
         os.makedirs(directory)
         print(f"Created directory: {directory}")
 
 
 def extract_text_from_txt(path):
+    """Extract text from a TXT file."""
     with open(path, 'r', encoding='utf-8') as file:
         return file.read()
 
 
 def extract_text_from_pdf(path):
+    """Extract text from a PDF file."""
     doc = fitz.open(path)
     text = []
     for page in doc:
@@ -85,12 +90,14 @@ def extract_text_from_pdf(path):
 
 
 def extract_text_from_docx(path):
+    """Extract text from a DOCX file."""
     with open(path, 'rb') as file:
         result = mammoth.extract_raw_text(file)
         return result.value
 
 
 def extract_text_from_pptx(path):
+    """Extract text from a PPTX file."""
     prs = Presentation(path)
     text = []
     for slide in prs.slides:
@@ -100,8 +107,8 @@ def extract_text_from_pptx(path):
     return "\n".join(text)
 
 
-# Function to extract text from IPYNB files
 def extract_text_from_ipynb(file_path):
+    """Extract text from an IPYNB file."""
     with open(file_path, 'r', encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
         text = ''
@@ -114,6 +121,7 @@ def extract_text_from_ipynb(file_path):
 
 
 def index_files(upload_folder):
+    """Index files in the upload folder."""
     file_index.clear()
     for root, dirs, files in os.walk(upload_folder):
         for file in files:
@@ -144,6 +152,7 @@ def index_files(upload_folder):
 
 
 def search_files(query):
+    """Search for files containing the query."""
     results = {}
     for file_path, content in file_index.items():
         if query.lower() in content.lower():
@@ -152,6 +161,7 @@ def search_files(query):
 
 
 def get_slides_content():
+    """Get slides content for preview."""
     # Define the function to fetch slides content from PPTX files
     # You can use the existing logic or modify it as needed
     # For demonstration, I'll provide a basic example
@@ -180,48 +190,48 @@ def get_slides_content():
 
 @app.route('/')
 def index():
+    """Render the index page."""
     categories = []
     for root, dirs, files in os.walk(app.config['UPLOAD_FOLDER']):
         for d in dirs:
             categories.append(d)
     return render_template('index.html', categories=categories)
+
+
 @app.route('/pptx_player/<path:file_path>')
 def pptx_player(file_path):
+    """Render the PPTX player page."""
     absolute_file_path = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], file_path.replace('\\', '/')))
     if os.path.exists(absolute_file_path):
         return render_template('pptx_player.html', pptx_file=file_path)
-    else:
-        return "File not found", 404
+    return "File not found", 404
 
 
 @app.route('/search', methods=['POST'])
 def search():
+    """Handle the search request."""
     query = request.form['query']
     search_results = search_files(query)
     return render_template('search_results.html', query=query, results=search_results)
 
 
-# Function to determine MIME type based on file extension
 def get_mime_type(filename):
+    """Determine MIME type based on file extension."""
     return mimetypes.guess_type(filename)[0]
 
 
 @app.route('/pptx_preview')
 def pptx_preview():
-    # Retrieve slides content (you need to implement this logic)
+    """Render the PPTX preview page."""
     slides_content = get_slides_content()
-
-    # Pass slides_content to the template
     return render_template('pptx_preview.html', slides_content=slides_content)
 
 
 @app.route('/open/<path:file_path>', methods=['GET'])
 def open_file(file_path):
-    # Replace backslashes with forward slashes in the file path
+    """Open and preview the specified file."""
     file_path = file_path.replace("\\", "/")
-
-    absolute_file_path = os.path.abspath(
-        os.path.join(app.config['UPLOAD_FOLDER'], file_path.replace('\\', '/')))
+    absolute_file_path = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], file_path.replace('\\', '/')))
     print(f"Opening file: {absolute_file_path}")
 
     if os.path.exists(absolute_file_path):
@@ -231,51 +241,47 @@ def open_file(file_path):
             slides_content = extract_text_and_images_from_pptx(absolute_file_path, images_dir)
             slides_count = len(slides_content)  # Calculate the number of slides
             print(f"Slides content: {slides_content}")
-            return render_template('pptx_preview.html', slides_content=slides_content,
-                                   slides_count=slides_count)
-        elif file_extension == 'docx':
+            return render_template('pptx_preview.html', slides_content=slides_content, slides_count=slides_count)
+        if file_extension == 'docx':
             with open(absolute_file_path, 'rb') as f:
                 content = mammoth.extract_raw_text(f).value
             return render_template('preview_docx.html', content=content)
-        elif file_extension == 'ipynb':
+        if file_extension == 'ipynb':
             with open(absolute_file_path, 'r', encoding='utf-8') as f:
                 notebook = nbformat.read(f, as_version=4)
             return render_template('preview_ipynb.html', notebook=notebook)  # Use notebook variable
-        else:
-            mime_type, _ = mimetypes.guess_type(absolute_file_path)
-            if mime_type is not None:
-                if mime_type.startswith('text'):
-                    with open(absolute_file_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
-                    return render_template('preview_text.html', content=content)
-                elif mime_type == 'application/pdf':
-                    return send_file(absolute_file_path)
-                elif mime_type.startswith('image'):
-                    return render_template('preview_image.html', file_path=file_path)
-                elif mime_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                    return render_template('preview_docx.html', file_path=absolute_file_path)
-                else:
-                    return "File type not supported for preview"
-            else:
-                return "Unknown file type"
-    else:
-        return "File not found", 404
+        mime_type, _ = mimetypes.guess_type(absolute_file_path)
+        if mime_type is not None:
+            if mime_type.startswith('text'):
+                with open(absolute_file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                return render_template('preview_text.html', content=content)
+            if mime_type == 'application/pdf':
+                return send_file(absolute_file_path)
+            if mime_type.startswith('image'):
+                return render_template('preview_image.html', file_path=file_path)
+            if mime_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                return render_template('preview_docx.html', file_path=absolute_file_path)
+            return "File type not supported for preview"
+        return "Unknown file type"
+    return "File not found", 404
 
 
-# New route for previewing IPYNB files
 @app.route('/preview_ipynb/<path:file_path>', methods=['GET'])
 def preview_ipynb(file_path):
+    """Preview an IPYNB file."""
     absolute_file_path = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], file_path))
     if os.path.exists(absolute_file_path):
         with open(absolute_file_path, 'r', encoding='utf-8') as f:
             notebook = nbformat.read(f, as_version=4)
         print(notebook)  # Debug: Print the notebook content
         return render_template('preview_ipynb.html', notebook=notebook)
-    else:
-        return "File not found", 404
+    return "File not found", 404
+
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    """Handle file upload."""
     if 'file' not in request.files:
         flash('No file part')
         return redirect(request.url)
@@ -305,12 +311,12 @@ def upload():
         index_files(app.config['UPLOAD_FOLDER'])  # Reindex files after upload
         flash('File successfully uploaded')
         return redirect(url_for('index'))
-    else:
-        flash('File type not allowed')
-        return redirect(request.url)
+    flash('File type not allowed')
+    return redirect(request.url)
 
 
 def save_slides_by_category(slides_content, category_path):
+    """Save slides by category."""
     for slide in slides_content:
         slide_index = slide['slide_index']
         content = slide['content']
@@ -334,6 +340,7 @@ def save_slides_by_category(slides_content, category_path):
 
 @app.route('/run_python', methods=['POST'])
 def run_python():
+    """Run Python code."""
     global execution_environment
     code = request.json.get('code', '')
     user_input = request.json.get('input', '')
@@ -355,8 +362,11 @@ def run_python():
         error = str(e)
 
     return jsonify({'output': output, 'error': error})
+
+
 @app.route('/execute_code', methods=['POST'])
 def execute_code():
+    """Execute code in a Jupyter kernel."""
     code = request.json.get('code', '')
     kernel_manager = KernelManager()
     kernel_manager.start_kernel()
@@ -368,8 +378,7 @@ def execute_code():
     kernel_manager.shutdown_kernel()
     return jsonify(result)
 
+
 if __name__ == '__main__':
     index_files(app.config['UPLOAD_FOLDER'])  # Index files on startup
     app.run(debug=True)
-
-#style updated#
