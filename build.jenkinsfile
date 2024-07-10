@@ -36,47 +36,19 @@ pipeline {
         stage('Static Code Linting') {
             steps {
                 sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
-            }
-            post {
-                always {
-                    sh 'cat pylint.log'
-                    recordIssues(
-                        enabledForFailure: true,
-                        aggregatingResults: true,
-                        tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
-                    )
-                }
+                archiveArtifacts artifacts: 'pylint.log', allowEmptyArchive: true
             }
         }
 
         stage('Unittest') {
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        script {
-                            sh 'python3 -m pytest --junitxml results.xml tests/test_demo.py'
-                        }
-                    }
-                    post {
-                        always {
-                            junit allowEmptyResults: true, testResults: 'results.xml'
-                        }
-                    }
+            steps {
+                script {
+                    sh 'python3 -m pytest --junitxml results.xml tests/'
                 }
-                stage('Static Code Linting') {
-                    steps {
-                        sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
-                    }
-                    post {
-                        always {
-                            sh 'cat pylint.log'
-                            recordIssues(
-                                enabledForFailure: true,
-                                aggregatingResults: true,
-                                tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
-                            )
-                        }
-                    }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'results.xml'
                 }
             }
         }
