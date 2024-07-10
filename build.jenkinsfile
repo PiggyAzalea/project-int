@@ -49,7 +49,7 @@ pipeline {
                             recordIssues(
                                 enabledForFailure: true,
                                 aggregatingResults: true,
-                                tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
+                                tools: [pylint(pattern: '**/pylint.log')]
                             )
                         }
                     }
