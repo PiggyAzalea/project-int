@@ -47,11 +47,13 @@ pipeline {
                                 aggregatingResults: true,
                                 tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
                             )
-                        }
-                        failure {
                             script {
-                                currentBuild.result = 'FAILURE'
-                                error("Pylint found issues.")
+                                // Check if pylint found any issues
+                                def pylintIssues = sh(script: "grep -c 'Module ' pylint.log", returnStatus: true)
+                                if (pylintIssues != 0) {
+                                    currentBuild.result = 'FAILURE'
+                                    echo "Pylint found issues."
+                                }
                             }
                         }
                     }
