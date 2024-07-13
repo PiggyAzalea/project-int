@@ -33,6 +33,12 @@ pipeline {
             }
         }
 
+        stage('Verify .pylintrc Presence') {
+            steps {
+                sh 'ls -la'
+            }
+        }
+
         stage('Static Code Linting') {
             steps {
                 script {
