@@ -33,6 +33,17 @@ pipeline {
             }
         }
 
+        stage('Convert .pylintrc to UTF-8') {
+            steps {
+                sh '''
+                    if ! file .pylintrc | grep -q 'UTF-8'; then
+                        iconv -f ISO-8859-1 -t UTF-8 .pylintrc -o .pylintrc.utf8
+                        mv .pylintrc.utf8 .pylintrc
+                    fi
+                '''
+            }
+        }
+
         stage('Verify .pylintrc Presence') {
             steps {
                 sh 'ls -la'
@@ -141,19 +152,4 @@ pipeline {
                         docker rmi exaclly/${PYTHON_IMG_NAME} || echo "Image exaclly/${PYTHON_IMG_NAME} already removed or not found."
                     '''
                 } catch (Exception e) {
-                    echo "Error during Docker image removal of ${PYTHON_IMG_NAME}: ${e}"
-                }
-                try {
-                    sh '''
-                        echo "Removing Docker image: exaclly/${NGINX_IMG_NAME}"
-                        docker rmi exaclly/${NGINX_IMG_NAME} || echo "Image exaclly/${NGINX_IMG_NAME} already removed or not found."
-                    '''
-                } catch (Exception e) {
-                    echo "Error during Docker image removal of ${NGINX_IMG_NAME}: ${e}"
-                }
-                cleanWs()
-                echo 'Cleanup process completed.'
-            }
-        }
-    }
-}
+                    echo "Error during Docker ima
