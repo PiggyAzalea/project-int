@@ -50,25 +50,22 @@ pipeline {
             }
         }
 
-        stage('Print Working Directory') {
-            steps {
-                sh 'pwd'
-            }
-        }
-
-        stage('List All Files and Directories') {
-            steps {
-                sh 'find . -type f -print'
-            }
-        }
-
         stage('Static Code Linting') {
             steps {
-                sh '''
-                    echo "Running pylint..."
-                    ls -la
-                    python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no . > pylint.log || true
-                '''
+                script {
+                    // Ensure the files exist before linting
+                    def filesToLint = ['app.py', 'test.py']
+                    def missingFiles = filesToLint.findAll { !fileExists(it) }
+
+                    if (missingFiles) {
+                        error "Linting files not found: ${missingFiles.join(', ')}"
+                    } else {
+                        sh '''
+                            echo "Running pylint..."
+                            pylint --rcfile=.pylintrc app.py test.py > pylint.log || true
+                        '''
+                    }
+                }
             }
             post {
                 always {
