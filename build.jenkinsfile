@@ -154,3 +154,5 @@ pipeline {
         }
     }
 }
+
+echo "hello"
