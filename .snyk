@@ -384,3 +384,7 @@ ignore:
     - "*":
         reason: "Ignored because this vulnerability is not exploitable in our environment."
         expires: "2025-01-01T00:00:00Z"
+  SNYK-DEBIAN12-TIFF-7448428:
+    - "*":
+        reason: "Ignored because this vulnerability is not exploitable in our environment."
+        expires: "2025-07-13T00:00:00Z"      
