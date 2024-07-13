@@ -43,20 +43,19 @@ pipeline {
         always {
             script {
                 echo 'Starting cleanup process...'
-                try {
-                    sh '''
-                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
-                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
-                    '''
-                } catch (Exception e) {
-                    echo "Error during Docker image removal: ${e.getMessage()}"
-                }
-
-                // Clean workspace inside node context to ensure hudson.FilePath is available
+                // Perform Docker image removal inside a node block to ensure context
                 node {
+                    try {
+                        sh '''
+                            echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
+                            docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
+                        '''
+                    } catch (Exception e) {
+                        echo "Error during Docker image removal: ${e.getMessage()}"
+                    }
+                    // Clean workspace inside the same node block to ensure hudson.FilePath is available
                     cleanWs()
                 }
-
                 echo 'Cleanup process completed.'
             }
         }
