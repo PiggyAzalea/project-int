@@ -53,11 +53,8 @@ pipeline {
                 }
 
                 // Clean workspace inside node context to ensure hudson.FilePath is available
-                node {
-                    if (getContext(hudson.FilePath)) {
-                        deleteDir()
-                    }
-                    cleanWs()
+                if (getContext(hudson.FilePath)) {
+                    deleteDir()
                 }
 
                 echo 'Cleanup process completed.'
