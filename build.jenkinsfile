@@ -33,6 +33,12 @@ pipeline {
             }
         }
 
+        stage('Verify .pylintrc Presence') {
+            steps {
+                sh 'ls -la'
+            }
+        }
+
         stage('Static Code Linting') {
             steps {
                 sh 'python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no app.py test.py > pylint.log'
@@ -42,11 +48,14 @@ pipeline {
                     archiveArtifacts artifacts: 'pylint.log', allowEmptyArchive: true
                     script {
                         try {
-                            def pylintIssues = readFile('pylint.log').getBytes('ISO-8859-1').toString('UTF-8').split('\n').findAll { it.trim() }
+                            // Read pylint.log as a byte array and convert to string using UTF-8
+                            def pylintLogBytes = readFile('pylint.log').getBytes('ISO-8859-1')
+                            def pylintLog = new String(pylintLogBytes, 'UTF-8')
+                            def pylintIssues = pylintLog.split('\n').findAll { it.trim() }
                             if (pylintIssues.size() > 0) {
                                 currentBuild.result = 'UNSTABLE'
                                 echo "Found ${pylintIssues.size()} pylint issues."
-                                echo "Pylint issues:\n${pylintIssues.join('\n')}"
+                                echo "Pylint issues:\n${pylintLog}"
                             } else {
                                 echo 'No pylint issues found.'
                             }
