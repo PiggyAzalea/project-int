@@ -80,7 +80,6 @@ confidence=
 # --disable=W".
 disable=
     # Disable the following messages:
-disable=
     C0301,  # Line too long
     C0304,  # Final newline missing
     C0114,  # Missing module docstring
