@@ -5,10 +5,12 @@ pipeline {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
         SNYK_TOKEN = credentials('snyk-token')
+        DOCKER_REGISTRY = 'localhost:8081/repository/ben-nexus'
+        DOCKER_CREDENTIALS_ID = 'nexus-credentials-id'
     }
 
     stages {
-        stage('Build Docker Images') {
+        stage('Build and Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
@@ -17,10 +19,25 @@ pipeline {
                             docker build -t "$PYTHON_IMG_NAME" -f Dockerfile.python .
                             docker tag "$PYTHON_IMG_NAME" exaclly/"$PYTHON_IMG_NAME"
                             docker push exaclly/"$PYTHON_IMG_NAME"
-                            echo "$USERPASS" | docker login -u "$USERNAME" --password-stdin
                             docker build -t "$NGINX_IMG_NAME" -f Dockerfile.nginx .
                             docker tag "$NGINX_IMG_NAME" exaclly/"$NGINX_IMG_NAME"
                             docker push exaclly/"$NGINX_IMG_NAME"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Build and Push to Nexus') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                    script {
+                        sh '''
+                            echo "$USERPASS" | docker login $DOCKER_REGISTRY -u "$USERNAME" --password-stdin
+                            docker build -t "$DOCKER_REGISTRY/$PYTHON_IMG_NAME" -f Dockerfile.python .
+                            docker push "$DOCKER_REGISTRY/$PYTHON_IMG_NAME"
+                            docker build -t "$DOCKER_REGISTRY/$NGINX_IMG_NAME" -f Dockerfile.nginx .
+                            docker push "$DOCKER_REGISTRY/$NGINX_IMG_NAME"
                         '''
                     }
                 }
