@@ -33,31 +33,25 @@ pipeline {
             }
         }
 
-        stage('Verify .pylintrc Presence') {
-            steps {
-                sh 'ls -la'
-            }
-        }
-
         stage('Static Code Linting') {
             steps {
-                script {
-                    def pylintRcFile = '.pylintrc'
-                    def pylintCommand = "python3 -m pylint --rcfile=${pylintRcFile} -f parseable --reports=no app.py test.py > pylint.log"
-                    sh pylintCommand
-                }
+                sh 'python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no app.py test.py > pylint.log'
             }
             post {
                 always {
                     archiveArtifacts artifacts: 'pylint.log', allowEmptyArchive: true
                     script {
-                        def pylintIssues = readFile('pylint.log').split('\n').findAll { it.trim() }
-                        if (pylintIssues.size() > 0) {
-                            currentBuild.result = 'UNSTABLE'
-                            echo "Found ${pylintIssues.size()} pylint issues."
-                            echo "Pylint issues:\n${readFile('pylint.log')}"
-                        } else {
-                            echo 'No pylint issues found.'
+                        try {
+                            def pylintIssues = readFile('pylint.log').getBytes('ISO-8859-1').toString('UTF-8').split('\n').findAll { it.trim() }
+                            if (pylintIssues.size() > 0) {
+                                currentBuild.result = 'UNSTABLE'
+                                echo "Found ${pylintIssues.size()} pylint issues."
+                                echo "Pylint issues:\n${pylintIssues.join('\n')}"
+                            } else {
+                                echo 'No pylint issues found.'
+                            }
+                        } catch (Exception e) {
+                            echo "Error reading pylint log: ${e}"
                         }
                     }
                 }
