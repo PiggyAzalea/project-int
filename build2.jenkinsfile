@@ -2,14 +2,8 @@ pipeline {
     agent {
         docker {
             image 'exaclly/jenkins-agent'
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /custom/jenkins/workspace:/home/jenkins/agent/workspace -w /home/jenkins/agent/workspace'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
-    }
-
-    options {
-        buildDiscarder(logRotator(daysToKeepStr: '30'))
-        disableConcurrentBuilds()
-        timestamps()
     }
 
     environment {
@@ -42,18 +36,8 @@ pipeline {
     post {
         always {
             script {
-                echo 'Starting cleanup process...'
-                try {
-                    sh '''
-                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
-                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
-                    '''
-                } catch (Exception e) {
-                    echo "Error during Docker image removal: ${e.getMessage()}"
-                }
+                cleanWs()
             }
         }
     }
 }
-
-echo "hello"
