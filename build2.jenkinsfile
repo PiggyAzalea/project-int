@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'exaclly/jenkins-agent'
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/jenkins_workspace:/workspace'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v $WORKSPACE:$WORKSPACE'
         }
     }
 
@@ -43,19 +43,20 @@ pipeline {
         always {
             script {
                 echo 'Starting cleanup process...'
-                // Perform Docker image removal inside a node block to ensure context
+                try {
+                    sh '''
+                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
+                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
+                    '''
+                } catch (Exception e) {
+                    echo "Error during Docker image removal: ${e.getMessage()}"
+                }
+
+                // Clean workspace inside node context to ensure hudson.FilePath is available
                 node {
-                    try {
-                        sh '''
-                            echo "Removing Docker image: exaclly/${JENKINS_IMG_NAME}"
-                            docker rmi exaclly/${JENKINS_IMG_NAME} || echo "Image exaclly/${JENKINS_IMG_NAME} already removed or not found."
-                        '''
-                    } catch (Exception e) {
-                        echo "Error during Docker image removal: ${e.getMessage()}"
-                    }
-                    // Clean workspace inside the same node block to ensure hudson.FilePath is available
                     cleanWs()
                 }
+
                 echo 'Cleanup process completed.'
             }
         }
