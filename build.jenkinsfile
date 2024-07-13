@@ -152,4 +152,19 @@ pipeline {
                         docker rmi exaclly/${PYTHON_IMG_NAME} || echo "Image exaclly/${PYTHON_IMG_NAME} already removed or not found."
                     '''
                 } catch (Exception e) {
-                    echo "Error during Docker ima
+                    echo "Error during Docker image removal of ${PYTHON_IMG_NAME}: ${e}"
+                }
+                try {
+                    sh '''
+                        echo "Removing Docker image: exaclly/${NGINX_IMG_NAME}"
+                        docker rmi exaclly/${NGINX_IMG_NAME} || echo "Image exaclly/${NGINX_IMG_NAME} already removed or not found."
+                    '''
+                } catch (Exception e) {
+                    echo "Error during Docker image removal of ${NGINX_IMG_NAME}: ${e}"
+                }
+                cleanWs()
+                echo 'Cleanup process completed.'
+            }
+        }
+    }
+}
