@@ -51,12 +51,6 @@ pipeline {
                 } catch (Exception e) {
                     echo "Error during Docker image removal: ${e.getMessage()}"
                 }
-
-                // Clean workspace using cleanWs step
-            script{
-                cleanWs()
-            }
-                echo 'Cleanup process completed.'
             }
         }
     }
