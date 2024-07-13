@@ -33,23 +33,6 @@ pipeline {
             }
         }
 
-        stage('Verify .pylintrc Encoding') {
-            steps {
-                sh '''
-                    if ! file .pylintrc | grep -q 'UTF-8'; then
-                        iconv -f ISO-8859-1 -t UTF-8 .pylintrc -o .pylintrc.utf8
-                        mv .pylintrc.utf8 .pylintrc
-                    fi
-                '''
-            }
-        }
-
-        stage('Verify .pylintrc Presence') {
-            steps {
-                sh 'ls -la'
-            }
-        }
-
         stage('Static Code Linting') {
             steps {
                 sh 'python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no app.py test.py > pylint.log'
