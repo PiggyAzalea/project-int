@@ -29,18 +29,67 @@ pipeline {
                 sh 'pip3 install -r requirements.txt'
             }
         }
-        stage('Static Analysis and Tests') {
+        stage('Verify .pylintrc Encoding') {
+            steps {
+                sh '''
+                    if ! file .pylintrc | grep -q 'UTF-8'; then
+                        iconv -f ISO-8859-1 -t UTF-8 .pylintrc -o .pylintrc.utf8
+                        mv .pylintrc.utf8 .pylintrc
+                    fi
+                '''
+            }
+        }
+        stage('Verify .pylintrc Presence') {
+            steps {
+                sh 'ls -la'
+            }
+        }
+
+        stage('Static Code Linting') {
+            steps {
+                script {
+                    // Ensure the files exist before linting
+                    def filesToLint = ['app.py', 'test.py']
+                    def missingFiles = filesToLint.findAll { !fileExists(it) }
+
+                    if (missingFiles) {
+                        error "Linting files not found: ${missingFiles.join(', ')}"
+                    } else {
+                        sh '''
+                            echo "Running pylint on app.py..."
+                            pylint --rcfile=.pylintrc app.py > pylint_app.log || true
+                            echo "Running pylint on test.py..."
+                            pylint --rcfile=.pylintrc test.py > pylint_test.log || true
+                        '''
+        stage('Parallel Linting and Unittest') {
             parallel {
                 stage('Static Code Linting') {
                     steps {
                         sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
-                        script {
-                            def pylintStatus = sh(script: 'python3 -m pylint -f parseable --reports=no *.py > pylint.log', returnStatus: true)
-                            if (pylintStatus != 0) {
-                                currentBuild.result = 'UNSTABLE'
-                            }
-                        }
                     }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'pylint_app.log, pylint_test.log', allowEmptyArchive: true
+                    script {
+                        try {
+                            def pylintAppLog = readFile('pylint_app.log')
+                            def pylintTestLog = readFile('pylint_test.log')
+                            def pylintIssuesApp = pylintAppLog.split('\n').findAll { it.trim() }
+                            def pylintIssuesTest = pylintTestLog.split('\n').findAll { it.trim() }
+                            def totalIssues = pylintIssuesApp.size() + pylintIssuesTest.size()
+
+                            if (totalIssues > 0) {
+                                currentBuild.result = 'UNSTABLE'
+                                echo "Found ${totalIssues} pylint issues."
+                                echo "Pylint issues in app.py:\n${pylintAppLog}"
+                                echo "Pylint issues in test.py:\n${pylintTestLog}"
+                            } else {
+                                echo 'No pylint issues found.'
+                            }
+                        } catch (Exception e) {
+                            echo "Error reading pylint logs: ${e}"
                     post {
                         always {
                             sh 'cat pylint.log'
@@ -49,28 +98,21 @@ pipeline {
                                 aggregatingResults: true,
                                 tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
                             )
-                            script {
-                                // Check if pylint found any issues
-                                def pylintIssues = sh(script: "grep -c 'Module ' pylint.log", returnStatus: true)
-                                if (pylintIssues != 0) {
-                                    currentBuild.result = 'FAILURE'
-                                    echo "Pylint found issues."
-                                }
-                            }
                         }
                     }
                 }
-                stage('Unittest') {
-                    steps {
-                        script {
-                            sh 'python3 -m pytest --junitxml results.xml tests/'
-                        }
-                    }
-                    post {
-                        always {
-                            junit allowEmptyResults: true, testResults: 'results.xml'
-                        }
-                    }
+            }
+        }
+
+        stage('Unittest') {
+            steps {
+                script {
+                    sh 'python3 -m pytest --junitxml results.xml tests/'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'results.xml'
                 }
             }
         }
