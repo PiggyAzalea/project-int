@@ -5,8 +5,7 @@ pipeline {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
         SNYK_TOKEN = credentials('snyk-token')
-        DOCKER_REGISTRY = 'localhost:8081'
-        DOCKER_REPOSITORY = 'repository/ben-nexus'
+        NEXUS_REPOSITORY_URL = 'http://localhost:8081/repository/ben-nexus'
         DOCKER_CREDENTIALS_ID = 'nexus-credentials-id'
     }
 
@@ -34,11 +33,11 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh '''
-                            echo "$USERPASS" | docker login $DOCKER_REGISTRY -u "$USERNAME" --password-stdin
-                            docker build -t "$DOCKER_REGISTRY/$DOCKER_REPOSITORY/$PYTHON_IMG_NAME" -f Dockerfile.python .
-                            docker push "$DOCKER_REGISTRY/$DOCKER_REPOSITORY/$PYTHON_IMG_NAME"
-                            docker build -t "$DOCKER_REGISTRY/$DOCKER_REPOSITORY/$NGINX_IMG_NAME" -f Dockerfile.nginx .
-                            docker push "$DOCKER_REGISTRY/$DOCKER_REPOSITORY/$NGINX_IMG_NAME"
+                            echo "$USERPASS" | docker login $NEXUS_REPOSITORY_URL -u "$USERNAME" --password-stdin
+                            docker build -t "$NEXUS_REPOSITORY_URL/python-app:${BUILD_NUMBER}" -f Dockerfile.python .
+                            docker push "$NEXUS_REPOSITORY_URL/python-app:${BUILD_NUMBER}"
+                            docker build -t "$NEXUS_REPOSITORY_URL/nginx-static:${BUILD_NUMBER}" -f Dockerfile.nginx .
+                            docker push "$NEXUS_REPOSITORY_URL/nginx-static:${BUILD_NUMBER}"
                         '''
                     }
                 }
@@ -48,8 +47,8 @@ pipeline {
         stage('Verify Push to Nexus') {
             steps {
                 script {
-                    def pythonImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $DOCKER_REGISTRY/repository/ben-nexus/v2/python-app/manifests/${BUILD_NUMBER}", returnStatus: true)
-                    def nginxImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $DOCKER_REGISTRY/repository/ben-nexus/v2/nginx-static/manifests/${BUILD_NUMBER}", returnStatus: true)
+                    def pythonImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $NEXUS_REPOSITORY_URL/v2/python-app/manifests/${BUILD_NUMBER}", returnStatus: true)
+                    def nginxImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $NEXUS_REPOSITORY_URL/v2/nginx-static/manifests/${BUILD_NUMBER}", returnStatus: true)
 
                     if (pythonImageExists != 200 || nginxImageExists != 200) {
                         error("One or more images failed to push to Nexus")
