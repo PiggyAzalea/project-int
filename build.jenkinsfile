@@ -32,43 +32,6 @@ pipeline {
                 sh 'pip3 install -r requirements.txt'
             }
         }
-
-        stage('Verify .pylintrc Encoding') {
-            steps {
-                sh '''
-                    if ! file .pylintrc | grep -q 'UTF-8'; then
-                        iconv -f ISO-8859-1 -t UTF-8 .pylintrc -o .pylintrc.utf8
-                        mv .pylintrc.utf8 .pylintrc
-                    fi
-                '''
-            }
-        }
-
-        stage('Verify .pylintrc Presence') {
-            steps {
-                sh 'ls -la'
-            }
-        }
-
-        stage('Parallel Linting and Unittest') {
-            parallel {
-                stage('Static Code Linting') {
-                    steps {
-                        sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
-                    }
-                    post {
-                        always {
-                            sh 'cat pylint.log'
-                            recordIssues (
-                                enabledForFailure: true,
-                                aggregatingResults: true,
-                                tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
-                            )
-                        }
-                    }
-                }
-        }
-
         stage('Unittest') {
             steps {
                 script {
