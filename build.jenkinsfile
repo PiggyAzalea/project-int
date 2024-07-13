@@ -50,9 +50,15 @@ pipeline {
             }
         }
 
-        stage('List Python Files') {
+        stage('Print Working Directory') {
             steps {
-                sh 'find . -name "*.py" -print'
+                sh 'pwd'
+            }
+        }
+
+        stage('List All Files and Directories') {
+            steps {
+                sh 'find . -type f -print'
             }
         }
 
@@ -61,7 +67,7 @@ pipeline {
                 sh '''
                     echo "Running pylint..."
                     ls -la
-                    python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no $(find . -name "*.py") > pylint.log || true
+                    python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no . > pylint.log || true
                 '''
             }
             post {
