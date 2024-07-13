@@ -61,28 +61,35 @@ pipeline {
                         error "Linting files not found: ${missingFiles.join(', ')}"
                     } else {
                         sh '''
-                            echo "Running pylint..."
-                            pylint --rcfile=.pylintrc app.py test.py > pylint.log || true
+                            echo "Running pylint on app.py..."
+                            pylint --rcfile=.pylintrc app.py > pylint_app.log || true
+                            echo "Running pylint on test.py..."
+                            pylint --rcfile=.pylintrc test.py > pylint_test.log || true
                         '''
                     }
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'pylint.log', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'pylint_app.log, pylint_test.log', allowEmptyArchive: true
                     script {
                         try {
-                            def pylintLog = readFile('pylint.log')
-                            def pylintIssues = pylintLog.split('\n').findAll { it.trim() }
-                            if (pylintIssues.size() > 0) {
+                            def pylintAppLog = readFile('pylint_app.log')
+                            def pylintTestLog = readFile('pylint_test.log')
+                            def pylintIssuesApp = pylintAppLog.split('\n').findAll { it.trim() }
+                            def pylintIssuesTest = pylintTestLog.split('\n').findAll { it.trim() }
+                            def totalIssues = pylintIssuesApp.size() + pylintIssuesTest.size()
+
+                            if (totalIssues > 0) {
                                 currentBuild.result = 'UNSTABLE'
-                                echo "Found ${pylintIssues.size()} pylint issues."
-                                echo "Pylint issues:\n${pylintLog}"
+                                echo "Found ${totalIssues} pylint issues."
+                                echo "Pylint issues in app.py:\n${pylintAppLog}"
+                                echo "Pylint issues in test.py:\n${pylintTestLog}"
                             } else {
                                 echo 'No pylint issues found.'
                             }
                         } catch (Exception e) {
-                            echo "Error reading pylint log: ${e}"
+                            echo "Error reading pylint logs: ${e}"
                         }
                     }
                 }
