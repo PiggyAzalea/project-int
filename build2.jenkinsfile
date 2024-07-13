@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'exaclly/jenkins-agent'
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/jenkins_workspace:/workspace'
         }
     }
 
@@ -47,8 +47,8 @@ pipeline {
                 node {
                     try {
                         sh '''
-                            echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
-                            docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
+                            echo "Removing Docker image: exaclly/${JENKINS_IMG_NAME}"
+                            docker rmi exaclly/${JENKINS_IMG_NAME} || echo "Image exaclly/${JENKINS_IMG_NAME} already removed or not found."
                         '''
                     } catch (Exception e) {
                         echo "Error during Docker image removal: ${e.getMessage()}"
