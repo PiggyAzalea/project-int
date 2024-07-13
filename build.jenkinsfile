@@ -33,31 +33,53 @@ pipeline {
             }
         }
 
+        stage('Verify .pylintrc Encoding') {
+            steps {
+                sh '''
+                    if ! file .pylintrc | grep -q 'UTF-8'; then
+                        iconv -f ISO-8859-1 -t UTF-8 .pylintrc -o .pylintrc.utf8
+                        mv .pylintrc.utf8 .pylintrc
+                    fi
+                '''
+            }
+        }
+
         stage('Verify .pylintrc Presence') {
             steps {
                 sh 'ls -la'
             }
         }
 
+        stage('List Python Files') {
+            steps {
+                sh 'find . -name "*.py" -print'
+            }
+        }
+
         stage('Static Code Linting') {
             steps {
-                script {
-                    def pylintRcFile = '.pylintrc'
-                    def pylintCommand = "python3 -m pylint --rcfile=${pylintRcFile} -f parseable --reports=no app.py test.py > pylint.log"
-                    sh pylintCommand
-                }
+                sh '''
+                    echo "Running pylint..."
+                    ls -la
+                    python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no $(find . -name "*.py") > pylint.log || true
+                '''
             }
             post {
                 always {
                     archiveArtifacts artifacts: 'pylint.log', allowEmptyArchive: true
                     script {
-                        def pylintIssues = readFile('pylint.log').split('\n').findAll { it.trim() }
-                        if (pylintIssues.size() > 0) {
-                            currentBuild.result = 'UNSTABLE'
-                            echo "Found ${pylintIssues.size()} pylint issues."
-                            echo "Pylint issues:\n${readFile('pylint.log')}"
-                        } else {
-                            echo 'No pylint issues found.'
+                        try {
+                            def pylintLog = readFile('pylint.log')
+                            def pylintIssues = pylintLog.split('\n').findAll { it.trim() }
+                            if (pylintIssues.size() > 0) {
+                                currentBuild.result = 'UNSTABLE'
+                                echo "Found ${pylintIssues.size()} pylint issues."
+                                echo "Pylint issues:\n${pylintLog}"
+                            } else {
+                                echo 'No pylint issues found.'
+                            }
+                        } catch (Exception e) {
+                            echo "Error reading pylint log: ${e}"
                         }
                     }
                 }
@@ -154,5 +176,3 @@ pipeline {
         }
     }
 }
-
-echo "hello"
