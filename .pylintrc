@@ -93,6 +93,7 @@ disable=
     R0912,  # Too many branches
     W0703,  # Catching too general exception
     W0122,  # Use of exec
+    E0401,  # Unable to import
     E1101   # No member
 
 # Enable the message, report, category or checker with the given id(s). You can
