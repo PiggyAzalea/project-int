@@ -19,4 +19,11 @@ services:
     volumes:
       - ./static:/usr/share/nginx/html
 
-#port tes1
+  nexus:
+    build:
+      context: .
+      dockerfile: Dockerfile.nexus
+    ports:
+      - "8082:8082"
+    volumes:
+      - nexus-data:/nexus-data

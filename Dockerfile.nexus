@@ -1,0 +1,11 @@
+# Use the official Nexus Repository Manager 3 image from Sonatype
+FROM sonatype/nexus3:latest
+
+# Expose the necessary ports
+EXPOSE 8081 8082
+
+# Define a volume to persist Nexus data
+VOLUME /nexus-data
+
+# Run the Nexus Repository Manager
+CMD ["sh", "-c", "/opt/sonatype/nexus/bin/nexus run"]
