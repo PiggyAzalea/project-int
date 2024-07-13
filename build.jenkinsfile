@@ -62,7 +62,6 @@ pipeline {
                     } else {
                         sh '''
                             echo "Running pylint..."
-                            ls -la
                             pylint --rcfile=.pylintrc app.py test.py > pylint.log || true
                         '''
                     }
