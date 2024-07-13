@@ -52,8 +52,12 @@ pipeline {
                     echo "Error during Docker image removal: ${e.getMessage()}"
                 }
 
-                // Clean workspace inside node context to ensure hudson.FilePath is available
-                cleanWs()
+                // Clean workspace if the hudson.FilePath context is available
+                script {
+                    if (getContext(hudson.FilePath)) {
+                        deleteDir()
+                    }
+                }
                 echo 'Cleanup process completed.'
             }
         }
