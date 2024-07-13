@@ -41,7 +41,7 @@ pipeline {
 
     post {
         always {
-            node {
+            node('') { // Specify the label for the node
                 script {
                     echo 'Starting cleanup process...'
                     try {
