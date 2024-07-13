@@ -33,9 +33,19 @@ pipeline {
             }
         }
 
+        stage('Verify .pylintrc Presence') {
+            steps {
+                sh 'ls -la'
+            }
+        }
+
         stage('Static Code Linting') {
             steps {
-                sh 'python3 -m pylint --rcfile=.pylintrc -f parseable --reports=no app.py test.py > pylint.log'
+                script {
+                    def pylintRcFile = '.pylintrc'
+                    def pylintCommand = "python3 -m pylint --rcfile=${pylintRcFile} -f parseable --reports=no app.py test.py > pylint.log"
+                    sh pylintCommand
+                }
             }
             post {
                 always {
