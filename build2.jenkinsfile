@@ -17,6 +17,16 @@ pipeline {
     }
 
     stages {
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    // Ensure the workspace directory exists and is writable
+                    sh 'mkdir -p /home/jenkins/agent/workspace'
+                    sh 'chmod -R 777 /home/jenkins/agent/workspace'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
