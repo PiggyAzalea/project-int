@@ -42,10 +42,7 @@ pipeline {
     post {
         always {
             script {
-                // Log the start of the cleanup process
                 echo 'Starting cleanup process...'
-
-                // Remove the built Docker images from the disk
                 try {
                     sh '''
                         echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
@@ -55,11 +52,11 @@ pipeline {
                     echo "Error during Docker image removal: ${e.getMessage()}"
                 }
 
-                // Clean the workspace
-                cleanWs()
+                // Clean workspace inside node context to ensure hudson.FilePath is available
+                node {
+                    cleanWs()
+                }
 
-
-                // Log the end of the cleanup process
                 echo 'Cleanup process completed.'
             }
         }
