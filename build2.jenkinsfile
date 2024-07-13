@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'exaclly/jenkins-agent'
+            image 'exaclly/jenkins-agent:latest'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /custom/jenkins/workspace:/home/jenkins/agent/workspace -w /home/jenkins/agent/workspace'
         }
     }
@@ -13,7 +13,7 @@ pipeline {
     }
 
     environment {
-        JENKINS_IMG_NAME = "exaclly/jenkins-agent:${BUILD_NUMBER}"
+        JENKINS_IMG_NAME = "jenkins-agent:${BUILD_NUMBER}"
     }
 
     stages {
@@ -43,11 +43,11 @@ pipeline {
         always {
             node('') { // Specify the label for the node
                 script {
-                    echo "Starting cleanup process..."
+                    echo 'Starting cleanup process...'
                     try {
                         sh '''
-                            echo "Removing Docker image: ${JENKINS_IMG_NAME}"
-                            docker rmi ${JENKINS_IMG_NAME} || echo "Image ${JENKINS_IMG_NAME} already removed or not found."
+                            echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
+                            docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
                         '''
                     } catch (Exception e) {
                         echo "Error during Docker image removal: ${e.getMessage()}"
@@ -56,7 +56,7 @@ pipeline {
                     // Clean workspace using cleanWs step
                     cleanWs()
 
-                    echo "Cleanup process completed."
+                    echo 'Cleanup process completed.'
                 }
             }
         }
