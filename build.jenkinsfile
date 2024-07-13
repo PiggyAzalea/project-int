@@ -33,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Convert .pylintrc to UTF-8') {
+        stage('Verify .pylintrc Encoding') {
             steps {
                 sh '''
                     if ! file .pylintrc | grep -q 'UTF-8'; then
