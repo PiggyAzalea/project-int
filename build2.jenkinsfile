@@ -53,8 +53,9 @@ pipeline {
                 }
 
                 // Clean workspace using cleanWs step
+            script{
                 cleanWs()
-
+            }
                 echo 'Cleanup process completed.'
             }
         }
