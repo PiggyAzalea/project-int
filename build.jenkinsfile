@@ -4,14 +4,9 @@ pipeline {
         PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
         SNYK_TOKEN = credentials('snyk-token')
-        NEXUS_REPOSITORY_URL = 'http://localhost:8081/repository/ben-nexus'
-        NEXUS_BASE_URL = 'http://localhost:8081'
-        NEXUS_REPOSITORY_PATH = 'repository/ben-nexus'
-        DOCKER_CREDENTIALS_ID = 'nexus-credentials-id'
     }
-
     stages {
-        stage('Build and Push to Docker Hub') {
+        stage('Build Docker Images') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
@@ -20,46 +15,11 @@ pipeline {
                             docker build -t "$PYTHON_IMG_NAME" -f Dockerfile.python .
                             docker tag "$PYTHON_IMG_NAME" exaclly/"$PYTHON_IMG_NAME"
                             docker push exaclly/"$PYTHON_IMG_NAME"
+                            echo "$USERPASS" | docker login -u "$USERNAME" --password-stdin
                             docker build -t "$NGINX_IMG_NAME" -f Dockerfile.nginx .
                             docker tag "$NGINX_IMG_NAME" exaclly/"$NGINX_IMG_NAME"
                             docker push exaclly/"$NGINX_IMG_NAME"
                         '''
-                    }
-                }
-            }
-        }
-        stage('Build and Push to Nexus') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
-                    script {
-                        sh '''
-                            echo "$USERPASS" | docker login $NEXUS_REPOSITORY_URL -u "$USERNAME" --password-stdin
-                            docker build -t "$NEXUS_REPOSITORY_URL/python-app:${BUILD_NUMBER}" -f Dockerfile.python .
-                            docker push "$NEXUS_REPOSITORY_URL/python-app:${BUILD_NUMBER}"
-                            docker build -t "$NEXUS_REPOSITORY_URL/nginx-static:${BUILD_NUMBER}" -f Dockerfile.nginx .
-                            docker push "$NEXUS_REPOSITORY_URL/nginx-static:${BUILD_NUMBER}"
-                            echo "$USERPASS" | docker login $NEXUS_BASE_URL -u "$USERNAME" --password-stdin
-                            docker build -t "$NEXUS_BASE_URL/$NEXUS_REPOSITORY_PATH/$PYTHON_IMG_NAME" -f Dockerfile.python .
-                            docker push "$NEXUS_BASE_URL/$NEXUS_REPOSITORY_PATH/$PYTHON_IMG_NAME"
-                            docker build -t "$NEXUS_BASE_URL/$NEXUS_REPOSITORY_PATH/$NGINX_IMG_NAME" -f Dockerfile.nginx .
-                            docker push "$NEXUS_BASE_URL/$NEXUS_REPOSITORY_PATH/$NGINX_IMG_NAME"
-                        '''
-                    }
-                }
-            }
-        }
-        stage('Verify Push to Nexus') {
-            steps {
-                script {
-                    def pythonImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $NEXUS_REPOSITORY_URL/v2/python-app/manifests/${BUILD_NUMBER}", returnStatus: true)
-                    def nginxImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $NEXUS_REPOSITORY_URL/v2/nginx-static/manifests/${BUILD_NUMBER}", returnStatus: true)
-                    def pythonImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $NEXUS_BASE_URL/$NEXUS_REPOSITORY_PATH/v2/python-app/manifests/${BUILD_NUMBER}", returnStatus: true)
-                    def nginxImageExists = sh(script: "curl -s -o /dev/null -w '%{http_code}' -u $USERNAME:$USERPASS $NEXUS_BASE_URL/$NEXUS_REPOSITORY_PATH/v2/nginx-static/manifests/${BUILD_NUMBER}", returnStatus: true)
-
-                    if (pythonImageExists != 200 || nginxImageExists != 200) {
-                        error("One or more images failed to push to Nexus")
-                    } else {
-                        echo "Images pushed to Nexus successfully"
                     }
                 }
             }
@@ -73,6 +33,7 @@ pipeline {
             parallel {
                 stage('Static Code Linting') {
                     steps {
+                        sh 'python3 -m pylint -f parseable --reports=no *.py > pylint.log'
                         script {
                             def pylintStatus = sh(script: 'python3 -m pylint -f parseable --reports=no *.py > pylint.log', returnStatus: true)
                             if (pylintStatus != 0) {
@@ -88,6 +49,14 @@ pipeline {
                                 aggregatingResults: true,
                                 tools: [pyLint(name: 'Pylint', pattern: '**/pylint.log')]
                             )
+                            script {
+                                // Check if pylint found any issues
+                                def pylintIssues = sh(script: "grep -c 'Module ' pylint.log", returnStatus: true)
+                                if (pylintIssues != 0) {
+                                    currentBuild.result = 'FAILURE'
+                                    echo "Pylint found issues."
+                                }
+                            }
                         }
                     }
                 }
