@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'exaclly/jenkins-agent:latest'
+            image 'exaclly/my-docker-agent:latest'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /custom/jenkins/workspace:/home/jenkins/agent/workspace -w /home/jenkins/agent/workspace'
         }
     }
@@ -62,10 +62,6 @@ pipeline {
                     echo "Error during Docker image removal: ${e.getMessage()}"
                 }
 
-                // Clean workspace using cleanWs step
-                
-
-                echo 'Cleanup process completed.'
             }
         }
     }
