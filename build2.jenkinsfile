@@ -44,10 +44,11 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockeragent', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh '''
+                            #!/bin/bash
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
-                            docker build -t ${env.JENKINS_IMG_NAME} -f Dockerfile.agent .
-                            docker tag ${env.JENKINS_IMG_NAME} exaclly/${env.JENKINS_IMG_NAME}
-                            docker push exaclly/${env.JENKINS_IMG_NAME}
+                            docker build -t ${JENKINS_IMG_NAME} -f Dockerfile.agent .
+                            docker tag ${JENKINS_IMG_NAME} exaclly/${JENKINS_IMG_NAME}
+                            docker push exaclly/${JENKINS_IMG_NAME}
                         '''
                     }
                 }
@@ -62,9 +63,10 @@ pipeline {
                 try {
                     node {
                         sh '''
-                            echo "Removing Docker image: exaclly/${env.JENKINS_IMG_NAME}"
-                            echo "DEBUG: JENKINS_IMG_NAME=${env.JENKINS_IMG_NAME}"
-                            docker rmi exaclly/${env.JENKINS_IMG_NAME} || echo "Image exaclly/${env.JENKINS_IMG_NAME} already removed or not found."
+                            #!/bin/bash
+                            echo "Removing Docker image: exaclly/${JENKINS_IMG_NAME}"
+                            echo "DEBUG: JENKINS_IMG_NAME=${JENKINS_IMG_NAME}"
+                            docker rmi exaclly/${JENKINS_IMG_NAME} || echo "Image exaclly/${JENKINS_IMG_NAME} already removed or not found."
                         '''
                     }
                 } catch (Exception e) {
