@@ -26,13 +26,7 @@ pipeline {
                             sudo mkdir -p /custom/jenkins/workspace
                         fi
                         sudo chmod -R 777 /custom/jenkins/workspace
-                    '''
-
-                    // Ensure the workspace directory inside the container is writable
-                    sh '''
-                        mkdir -p /home/jenkins/agent/workspace
-                        chmod -R 777 /home/jenkins/agent/workspace
-                        chown -R jenkins:jenkins /home/jenkins/agent/workspace
+                        sudo chown -R 1000:1000 /custom/jenkins/workspace
                     '''
                 }
             }

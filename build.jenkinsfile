@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}"
+        PYTHON_IMG_NAME = "python-app:${BUILD_NUMBER}" // Define environment variables for Docker image names using the current build number
         NGINX_IMG_NAME = "nginx-static:${BUILD_NUMBER}"
-        SNYK_TOKEN = credentials('snyk-token')
+        SNYK_TOKEN = credentials('snyk-token') // Define Snyk token for security scanning
     }
 
     stages {
@@ -13,10 +13,14 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh '''
+                            // Log in to Docker Hub
                             echo "$USERPASS" | docker login -u "$USERNAME" --password-stdin
+                            // Build and push the Python application Docker image
                             docker build -t "$PYTHON_IMG_NAME" -f Dockerfile.python .
                             docker tag "$PYTHON_IMG_NAME" exaclly/"$PYTHON_IMG_NAME"
                             docker push exaclly/"$PYTHON_IMG_NAME"
+
+                            // Build and push the Nginx Docker image
                             echo "$USERPASS" | docker login -u "$USERNAME" --password-stdin
                             docker build -t "$NGINX_IMG_NAME" -f Dockerfile.nginx .
                             docker tag "$NGINX_IMG_NAME" exaclly/"$NGINX_IMG_NAME"
@@ -29,7 +33,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                sh 'pip3 install -r requirements.txt' // Install required Python dependencies
             }
         }
 
@@ -38,6 +42,7 @@ pipeline {
                 stage('Static Code Linting') {
                     steps {
                         script {
+                            // Run pylint for static code analysis
                             def pylintStatus = sh(script: 'python3 -m pylint -f parseable --reports=no *.py > pylint.log', returnStatus: true)
                             if (pylintStatus != 0) {
                                 currentBuild.result = 'UNSTABLE'
@@ -46,6 +51,7 @@ pipeline {
                     }
                     post {
                         always {
+                            // Display pylint log and record issues
                             sh 'cat pylint.log'
                             recordIssues (
                                 enabledForFailure: true,
@@ -58,11 +64,13 @@ pipeline {
                 stage('Unittest') {
                     steps {
                         script {
+                            // Run unit tests using pytest
                             sh 'python3 -m pytest --junitxml results.xml tests/'
                         }
                     }
                     post {
                         always {
+                            // Publish test results
                             junit allowEmptyResults: true, testResults: 'results.xml'
                         }
                     }
@@ -75,6 +83,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
                         sh '''
+                            // Authenticate with Snyk and scan the Python Docker image
                             snyk auth $SNYK_TOKEN
                             snyk container test exaclly/$PYTHON_IMG_NAME --file=Dockerfile.python --policy-path=.snyk
                         '''
@@ -88,6 +97,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
                     withEnv(["SNYK_TOKEN=${SNYK_TOKEN}"]) {
                         sh '''
+                            // Authenticate with Snyk and scan the Nginx Docker image
                             snyk auth $SNYK_TOKEN
                             snyk container test exaclly/$NGINX_IMG_NAME --file=Dockerfile.nginx --policy-path=.snyk
                         '''
@@ -99,6 +109,7 @@ pipeline {
         stage('Deploy Containers') {
             steps {
                 script {
+                    // Define Docker Compose content for deploying the containers
                     def dockerComposeContent = """
                     version: '3.8'
 
@@ -113,6 +124,7 @@ pipeline {
                         ports:
                           - "8445:8444"
                     """
+                    // Write Docker Compose file and deploy containers
                     writeFile file: 'docker-compose.yaml', text: dockerComposeContent
                     sh 'docker-compose down'
                     sh 'docker-compose up -d'
@@ -127,6 +139,7 @@ pipeline {
                 echo 'Starting cleanup process...'
                 try {
                     sh '''
+                        // Remove the Python Docker image
                         echo "Removing Docker image: exaclly/${PYTHON_IMG_NAME}"
                         docker rmi exaclly/${PYTHON_IMG_NAME} || echo "Image exaclly/${PYTHON_IMG_NAME} already removed or not found."
                     '''
@@ -135,12 +148,14 @@ pipeline {
                 }
                 try {
                     sh '''
+                        // Remove the Nginx Docker image
                         echo "Removing Docker image: exaclly/${NGINX_IMG_NAME}"
                         docker rmi exaclly/${NGINX_IMG_NAME} || echo "Image exaclly/${NGINX_IMG_NAME} already removed or not found."
                     '''
                 } catch (Exception e) {
                     echo "Error during Docker image removal of ${NGINX_IMG_NAME}: ${e}"
                 }
+                // Clean up the workspace
                 cleanWs()
                 echo 'Cleanup process completed.'
             }
