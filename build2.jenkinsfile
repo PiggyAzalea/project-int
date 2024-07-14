@@ -20,9 +20,13 @@ pipeline {
         stage('Prepare Workspace') {
             steps {
                 script {
-                    // Ensure the workspace directory exists and is writable
-                    sh 'mkdir -p /home/jenkins/agent/workspace'
-                    sh 'chmod -R 777 /home/jenkins/agent/workspace'
+                    // Ensure the workspace directory exists and is writable on the host
+                    sh '''
+                        if [ ! -d /custom/jenkins/workspace ]; then
+                            sudo mkdir -p /custom/jenkins/workspace
+                        fi
+                        sudo chmod -R 777 /custom/jenkins/workspace
+                    '''
                 }
             }
         }
@@ -51,7 +55,22 @@ pipeline {
 
     post {
         always {
-            echo "debuging"
+            script {
+                echo 'Starting cleanup process...'
+                try {
+                    sh '''
+                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
+                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
+                    '''
+                } catch (Exception e) {
+                    echo "Error during Docker image removal: ${e.getMessage()}"
+                }
+
+                // Clean workspace using cleanWs step
+                cleanWs()
+
+                echo 'Cleanup process completed.'
+            }
         }
     }
 }
