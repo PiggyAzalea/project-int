@@ -40,7 +40,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-agent', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockeragent', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh '''
                             echo $USERPASS | docker login -u $USERNAME --password-stdin
@@ -59,10 +59,12 @@ pipeline {
             script {
                 echo 'Starting cleanup process...'
                 try {
-                    sh '''
-                        echo "Removing Docker image: exaclly/$JENKINS_IMG_NAME"
-                        docker rmi exaclly/$JENKINS_IMG_NAME || echo "Image exaclly/$JENKINS_IMG_NAME already removed or not found."
-                    '''
+                    node {
+                        sh '''
+                            echo "Removing Docker image: exaclly/${JENKINS_IMG_NAME}"
+                            docker rmi exaclly/${JENKINS_IMG_NAME} || echo "Image exaclly/${JENKINS_IMG_NAME} already removed or not found."
+                        '''
+                    }
                 } catch (Exception e) {
                     echo "Error during Docker image removal: ${e.getMessage()}"
                 }
