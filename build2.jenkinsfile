@@ -63,7 +63,7 @@ pipeline {
                 }
 
                 // Clean workspace using cleanWs step
-                cleanWs()
+                
 
                 echo 'Cleanup process completed.'
             }
