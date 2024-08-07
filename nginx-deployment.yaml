@@ -29,14 +29,14 @@ spec:
         livenessProbe:
           httpGet:
             path: /
-            port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
+            port: 8444
+          initialDelaySeconds: 60
+          periodSeconds: 30
         readinessProbe:
           httpGet:
             path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
+            port: 8444
+          initialDelaySeconds: 30
+          periodSeconds: 10
       imagePullSecrets:
       - name: regcred
