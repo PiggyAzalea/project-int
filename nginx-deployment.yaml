@@ -18,7 +18,7 @@ spec:
       - name: nginx
         image: docker.io/exaclly/nginx-static:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8444
         resources:
           requests:
             memory: "64Mi"
