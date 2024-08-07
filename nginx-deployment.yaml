@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: docker.io/exaclly/nginx:latest
+        image: docker.io/exaclly/nginx-static:latest
         ports:
         - containerPort: 80
         resources:
