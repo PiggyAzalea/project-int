@@ -75,7 +75,7 @@ spec:
       serviceAccountName: coredns
       containers:
       - name: coredns
-        image: k8s.gcr.io/coredns:1.8.0
+        image: coredns/coredns:1.8.7
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -139,12 +139,4 @@ spec:
     k8s-app: kube-dns
   clusterIP: 10.96.0.10
   ports:
-  - name: dns
-    port: 53
-    protocol: UDP
-  - name: dns-tcp
-    port: 53
-    protocol: TCP
-  - name: metrics
-    port: 9153
-    protocol: TCP
+
