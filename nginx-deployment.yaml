@@ -40,3 +40,4 @@ spec:
           periodSeconds: 5
       imagePullSecrets:
       - name: regcred
+                    d
