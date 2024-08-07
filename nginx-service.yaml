@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx-service
-  namespace: demo_app
+  namespace: demo-app
 spec:
   selector:
     app: nginx
